@@ -144,6 +144,10 @@ def enroll_no_pulse(base_url_publica: str | None):
         "nome": os.getenv("TELEMETRY_APP_NOME", os.getenv("TELEMETRY_APP_ID", "app")),
         "ambiente": amb,
         "base_url": (base_url_publica or "") if amb != "local" else "",
+        # url_publica: endereço PÚBLICO/humano só p/ EXIBIÇÃO no painel (distingue prod/dev/local
+        # de relance). Quando o painel PUXA por um host interno de Docker (ex.:
+        # http://rh-backend:8000), mande aqui a URL pública real (ex.: https://rh.ai-garage.com.br).
+        "url_publica": os.getenv("TELEMETRY_PUBLIC_URL", "") or (base_url_publica or ""),
         "export_key": os.getenv("TELEMETRY_EXPORT_KEY", ""),
         "responsavel_nome": os.getenv("TELEMETRY_RESPONSAVEL"),
         "responsavel_email": os.getenv("TELEMETRY_RESPONSAVEL_EMAIL"),
