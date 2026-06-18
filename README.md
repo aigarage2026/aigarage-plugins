@@ -1,13 +1,17 @@
 # ai-garage — plugins do Claude Code
 
-Marketplace de plugins/skills do ecossistema **ai-garage**, distribuído por git para
-qualquer máquina/projeto do time.
+Marketplace de skills do ecossistema **ai-garage**, distribuído por git para qualquer
+máquina/projeto do time. Tudo num único plugin chamado `aigarage`, então as skills ficam
+namespaced pelo ecossistema: `/aigarage:<skill>`.
 
-## Plugins
+## Skills (dentro do plugin `aigarage`)
 
-| Plugin | O que faz |
-|---|---|
-| **telemetria** | Instrumenta qualquer app para telemetria de uso e a conecta ao painel central **ai-garage Pulse** (auto-enroll: captura sessões/tempo/ações/LLM, gera a `export_key`, cadastra via `POST /enroll` e liga polling ou push). |
+| Skill | Comando | O que faz |
+|---|---|---|
+| **telemetria** | `/aigarage:telemetria` | Instrumenta qualquer app para telemetria de uso e a conecta ao painel central **ai-garage Pulse** (auto-enroll: captura sessões/tempo/ações/LLM, gera a `export_key`, cadastra via `POST /enroll` e liga polling ou push). |
+
+> Em linguagem natural (ex.: "aplica o telemetria aqui") a skill também dispara sozinha pela
+> `description`, sem precisar do slash.
 
 ## Como usar (em qualquer máquina/projeto)
 
@@ -15,13 +19,10 @@ Uma vez por máquina, dentro do Claude Code:
 
 ```
 /plugin marketplace add aigarage2026/aigarage-plugins
-/plugin install telemetria@aigarage
+/plugin install aigarage@aigarage
 ```
 
-Depois disso, em **qualquer** projeto daquela máquina é só pedir a skill (ex.: "aplica o
-telemetria aqui" / `/telemetria`).
-
-Para atualizar quando este repo mudar:
+Atualizar quando este repo mudar:
 
 ```
 /plugin marketplace update aigarage
@@ -30,11 +31,13 @@ Para atualizar quando este repo mudar:
 ## Estrutura
 
 ```
-.claude-plugin/marketplace.json     # lista os plugins deste marketplace
-plugins/telemetria/
-  .claude-plugin/plugin.json         # metadados do plugin
-  skills/telemetria/SKILL.md         # a skill em si
+.claude-plugin/marketplace.json        # lista o plugin 'aigarage'
+plugins/aigarage/
+  .claude-plugin/plugin.json            # metadados do plugin (name: aigarage)
+  skills/
+    telemetria/SKILL.md                 # uma pasta por skill
 ```
 
-Para adicionar um novo plugin/skill: crie `plugins/<nome>/` com seu `plugin.json` e
-`skills/`, e registre-o em `.claude-plugin/marketplace.json`.
+Para adicionar uma nova skill (auditai-ui, rich-tooltips, multilang...): crie
+`plugins/aigarage/skills/<nome>/SKILL.md`. Ela fica disponível como `/aigarage:<nome>` —
+não precisa mexer no `marketplace.json`.
