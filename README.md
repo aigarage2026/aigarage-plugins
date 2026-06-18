@@ -9,6 +9,7 @@ namespaced pelo ecossistema: `/aigarage:<skill>`.
 | Skill | Comando | O que faz |
 |---|---|---|
 | **telemetria** | `/aigarage:telemetria` | Instrumenta qualquer app para telemetria de uso e a conecta ao painel central **ai-garage Pulse** (auto-enroll: captura sessões/tempo/ações/LLM, gera a `export_key`, cadastra via `POST /enroll` e liga polling ou push). |
+| **support-chat** | `/aigarage:support-chat` | Adiciona um **chat de suporte operacional com IA** (botão flutuante em todas as telas) cujo conhecimento se **sincroniza sozinho com o menu do app**: a navegação envia menu + tela atual a cada pergunta, então adicionar/renomear uma tela reflete no suporte sem editar prompt. Conversas persistidas e escopadas por tenant + usuário (anti-IDOR). |
 
 > Em linguagem natural (ex.: "aplica o telemetria aqui") a skill também dispara sozinha pela
 > `description`, sem precisar do slash.

@@ -12,7 +12,7 @@
     {
       "name": "aigarage",
       "source": "./plugins/aigarage",
-      "description": "Skills do ecossistema ai-garage (telemetria e, futuramente, auditai-ui, rich-tooltips, multilang, etc).",
+      "description": "Skills do ecossistema ai-garage (telemetria, support-chat e, futuramente, auditai-ui, rich-tooltips, multilang, etc).",
       "version": "1.0.0",
       "author": { "name": "ai-garage" }
     }
