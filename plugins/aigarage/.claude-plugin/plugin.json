@@ -1,7 +1,7 @@
 {
   "name": "aigarage",
-  "description": "Skills do ecossistema ai-garage. Inclui 'telemetria' (instrumenta qualquer app e conecta ao painel central Pulse: auto-enroll, captura de sessões/tempo/ações/LLM, polling ou push), 'support-chat' (chat de suporte operacional com IA, botão flutuante em todas as telas, com conhecimento que se sincroniza sozinho a partir do menu do app) e 'UX-aplicacoes-DAP' (design system padrão das apps DAP: tema claro premium com accent teal, tokens/classes de componente, layout, KPI/ChartCard, modais e princípios de UX).",
-  "version": "1.1.0",
+  "description": "Skills do ecossistema ai-garage / Direto ao Ponto (DAP). Design & UX: 'UX-aplicacoes-DAP' (design system claro premium + teal), 'rich-tooltips', 'multilang' (i18n), 'ux-standards', 'frontend-design'. Produto: 'support-chat' (suporte com IA, conhecimento via menu vivo), 'auth-kit' (login/RBAC/reset de senha), 'test-pack' (POC). Telemetria: 'telemetria' (auto-enroll no painel Pulse) e 'telemetry' (export incremental genérico). Operação & segurança: 'llm-keys' (chaves de LLM centralizadas), 'confirm-deletes' (confirmação em ações destrutivas), 'security-audit' (OWASP+LGPD), 'QA-Autenticacao' (auditoria AuthN/AuthZ), 'safe-stack' (Docker dev seguro).",
+  "version": "1.2.0",
   "author": {
     "name": "ai-garage",
     "email": "rogerio.ribeiro@diretoaoponto.inf.br"
