@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Plugins e skills do ecossistema ai-garage.",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "aigarage",
       "source": "./plugins/aigarage",
-      "description": "Skills do ecossistema ai-garage (telemetria, support-chat e, futuramente, auditai-ui, rich-tooltips, multilang, etc).",
-      "version": "1.0.0",
+      "description": "Skills do ecossistema ai-garage (telemetria, support-chat, UX-aplicacoes-DAP e, futuramente, rich-tooltips, multilang, etc).",
+      "version": "1.1.0",
       "author": { "name": "ai-garage" }
     }
   ]

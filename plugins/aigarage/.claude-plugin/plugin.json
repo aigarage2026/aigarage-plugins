@@ -1,7 +1,7 @@
 {
   "name": "aigarage",
-  "description": "Skills do ecossistema ai-garage. Inclui 'telemetria' (instrumenta qualquer app e conecta ao painel central Pulse: auto-enroll, captura de sessões/tempo/ações/LLM, polling ou push) e 'support-chat' (chat de suporte operacional com IA, botão flutuante em todas as telas, com conhecimento que se sincroniza sozinho a partir do menu do app).",
-  "version": "1.0.0",
+  "description": "Skills do ecossistema ai-garage. Inclui 'telemetria' (instrumenta qualquer app e conecta ao painel central Pulse: auto-enroll, captura de sessões/tempo/ações/LLM, polling ou push), 'support-chat' (chat de suporte operacional com IA, botão flutuante em todas as telas, com conhecimento que se sincroniza sozinho a partir do menu do app) e 'UX-aplicacoes-DAP' (design system padrão das apps DAP: tema claro premium com accent teal, tokens/classes de componente, layout, KPI/ChartCard, modais e princípios de UX).",
+  "version": "1.1.0",
   "author": {
     "name": "ai-garage",
     "email": "rogerio.ribeiro@diretoaoponto.inf.br"
