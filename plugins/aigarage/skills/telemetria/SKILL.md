@@ -35,6 +35,7 @@ Tudo vem do arquivo central de chaves (`~/.config/llm-keys/keys.env`, fora do re
 | `TELEMETRY_APP_ID` | id curto da app (ex.: `auditai`, `crmai`) |
 | `TELEMETRY_EXPORT_KEY` | chave do contrato/push DESTA app (a skill gera se faltar: `secrets.token_urlsafe(32)`) |
 | `TELEMETRY_AMBIENTE` | `prod` \| `dev` \| `local` (default: `local` em dev de máquina; `dev`/`prod` no deploy) |
+| `TELEMETRY_BASE_URL` | **(prod/dev)** URL PÚBLICA por onde o Pulse PUXA o contrato — onde `/telemetry/*` está roteado. dev: `https://app-dev.ai-garage.com.br/api/v1` · prod: `https://app.ai-garage.com.br/api/v1`. **NUNCA** host interno de Docker (`http://app-backend:8000`): o Pulse roda noutra rede e não resolve. |
 | `TELEMETRY_EMPRESA` | nome da empresa/cliente dono (ex.: `CVC`, `Direto ao Ponto`) |
 
 ## Passo 1 — Detectar a stack e o ambiente
@@ -42,6 +43,11 @@ Tudo vem do arquivo central de chaves (`~/.config/llm-keys/keys.env`, fora do re
   a função de registro e as rotas. **O código de referência abaixo é FastAPI+SQLAlchemy** (padrão
   do ecossistema AuditAI); adapte para outras stacks mantendo o MESMO contrato.
 - Ambiente: se há `base_url` pública (deploy) → `prod`/`dev` (polling). Se é `localhost` → `local` (push).
+- **`base_url` (polling) = a URL PÚBLICA alcançável pelo Pulse**, com o path onde o contrato vive
+  (ex.: `https://app-dev.ai-garage.com.br/api/v1`). **Cada ambiente é um registro próprio** no Pulse
+  (chave única empresa+app_id+ambiente) — rode a skill em CADA deploy (dev e prod) p/ monitorar os dois.
+  ⚠️ Nunca registre host interno de Docker (`http://app-backend:8000`): o Pulse não o resolve → "fora do ar".
+  Garanta que o túnel/nginx da app roteia `/…/telemetry/*` pro backend (senão volta o SPA → 503/HTML).
 
 ## Passo 2 — Log de eventos (append-only) + registro best-effort
 Tabela `telemetry_events` (somente-append). `seq` BIGSERIAL é o **cursor** estável; `event_id`
@@ -138,16 +144,18 @@ def enroll_no_pulse(base_url_publica: str | None):
     pulse = os.getenv("PULSE_BASE_URL"); token = os.getenv("PULSE_ENROLL_TOKEN")
     if not pulse or not token: return
     amb = os.getenv("TELEMETRY_AMBIENTE", "local")
+    # base_url (polling) = URL PÚBLICA que o Pulse alcança. Preferir TELEMETRY_BASE_URL
+    # explícito; cair no argumento só como fallback. NUNCA host interno de Docker.
+    base_url = os.getenv("TELEMETRY_BASE_URL") or (base_url_publica or "")
     body = {
         "empresa": os.getenv("TELEMETRY_EMPRESA", "Direto ao Ponto"),
         "app_id": os.getenv("TELEMETRY_APP_ID", "app"),
         "nome": os.getenv("TELEMETRY_APP_NOME", os.getenv("TELEMETRY_APP_ID", "app")),
         "ambiente": amb,
-        "base_url": (base_url_publica or "") if amb != "local" else "",
+        "base_url": base_url if amb != "local" else "",
         # url_publica: endereço PÚBLICO/humano só p/ EXIBIÇÃO no painel (distingue prod/dev/local
-        # de relance). Quando o painel PUXA por um host interno de Docker (ex.:
-        # http://rh-backend:8000), mande aqui a URL pública real (ex.: https://rh.ai-garage.com.br).
-        "url_publica": os.getenv("TELEMETRY_PUBLIC_URL", "") or (base_url_publica or ""),
+        # de relance). Default = o próprio base_url público.
+        "url_publica": os.getenv("TELEMETRY_PUBLIC_URL", "") or base_url,
         "export_key": os.getenv("TELEMETRY_EXPORT_KEY", ""),
         "responsavel_nome": os.getenv("TELEMETRY_RESPONSAVEL"),
         "responsavel_email": os.getenv("TELEMETRY_RESPONSAVEL_EMAIL"),
