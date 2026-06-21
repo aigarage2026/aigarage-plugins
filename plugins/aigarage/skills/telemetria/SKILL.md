@@ -42,7 +42,10 @@ Tudo vem do arquivo central de chaves (`~/.config/llm-keys/keys.env`, fora do re
 - Backend: FastAPI/SQLAlchemy? Express/Prisma? Django? Laravel? Identifique onde criar a tabela,
   a função de registro e as rotas. **O código de referência abaixo é FastAPI+SQLAlchemy** (padrão
   do ecossistema AuditAI); adapte para outras stacks mantendo o MESMO contrato.
-- Ambiente: se há `base_url` pública (deploy) → `prod`/`dev` (polling). Se é `localhost` → `local` (push).
+- Ambiente: **inferido da URL pública** pela convenção do ecossistema (não chute): host `*-dev.*`
+  → `dev`; outro domínio público → `prod`; `localhost`/loopback → `local` (push). `TELEMETRY_AMBIENTE`
+  só como override explícito. O backend do Pulse aplica a MESMA regra e **auto-corrige** quem se
+  declarar `prod` rodando em `-dev` (fail-closed se não der pra inferir).
 - **`base_url` (polling) = a URL PÚBLICA alcançável pelo Pulse**, com o path onde o contrato vive
   (ex.: `https://app-dev.ai-garage.com.br/api/v1`). **Cada ambiente é um registro próprio** no Pulse
   (chave única empresa+app_id+ambiente) — rode a skill em CADA deploy (dev e prod) p/ monitorar os dois.
@@ -139,14 +142,32 @@ Rode no **boot** (best-effort, idempotente) OU como script de deploy. Faz a app 
 import os, httpx, logging
 log = logging.getLogger("telemetria.enroll")
 
+def _infere_ambiente(*urls):
+    """Deriva prod|dev|local pela convenção do ecossistema (mesma regra do Pulse):
+    loopback/sem URL pública → local; host ``*-dev.*`` → dev; outro domínio → prod.
+    Host interno de Docker (sem ponto, ex.: ``api``) é ignorado (não dá sinal)."""
+    import re
+    from urllib.parse import urlparse
+    for u in urls:
+        if not u: continue
+        h = (urlparse(u if "://" in u else f"//{u}").hostname or "").lower()
+        if not h: continue
+        if h in ("localhost", "127.0.0.1", "0.0.0.0", "::1"): return "local"
+        if "." not in h: continue
+        return "dev" if re.search(r"(^|[.-])dev([.-]|$)", h) else "prod"
+    return "local"
+
 def enroll_no_pulse(base_url_publica: str | None):
     """Cadastra/atualiza esta app no Pulse. base_url_publica = None em ambiente local (push)."""
     pulse = os.getenv("PULSE_BASE_URL"); token = os.getenv("PULSE_ENROLL_TOKEN")
     if not pulse or not token: return
-    amb = os.getenv("TELEMETRY_AMBIENTE", "local")
     # base_url (polling) = URL PÚBLICA que o Pulse alcança. Preferir TELEMETRY_BASE_URL
     # explícito; cair no argumento só como fallback. NUNCA host interno de Docker.
     base_url = os.getenv("TELEMETRY_BASE_URL") or (base_url_publica or "")
+    pub = os.getenv("TELEMETRY_PUBLIC_URL", "") or base_url
+    # Ambiente: env explícita vence; senão INFERE da URL pública (não chuta 'local'/'prod').
+    # Isso evita o clássico bug de etiquetar um deploy -dev como prod.
+    amb = os.getenv("TELEMETRY_AMBIENTE") or _infere_ambiente(pub, base_url)
     body = {
         "empresa": os.getenv("TELEMETRY_EMPRESA", "Direto ao Ponto"),
         "app_id": os.getenv("TELEMETRY_APP_ID", "app"),
@@ -155,7 +176,7 @@ def enroll_no_pulse(base_url_publica: str | None):
         "base_url": base_url if amb != "local" else "",
         # url_publica: endereço PÚBLICO/humano só p/ EXIBIÇÃO no painel (distingue prod/dev/local
         # de relance). Default = o próprio base_url público.
-        "url_publica": os.getenv("TELEMETRY_PUBLIC_URL", "") or base_url,
+        "url_publica": pub,
         "export_key": os.getenv("TELEMETRY_EXPORT_KEY", ""),
         "responsavel_nome": os.getenv("TELEMETRY_RESPONSAVEL"),
         "responsavel_email": os.getenv("TELEMETRY_RESPONSAVEL_EMAIL"),
