@@ -24,6 +24,19 @@ e a **aparecer no painel sozinha**. Dois transportes, escolhidos pelo ambiente:
 > Companheira da skill `telemetry` (genérica). Esta é **Pulse-aware**: além de instrumentar,
 > faz o **auto-enrollment** e o **push** para conectar diretamente ao painel.
 
+## Checklist rápido — onboarding de app nova → Pulse
+A skill resolve o LADO DO CÓDIGO (captura + contrato/push + auto-enroll). Pra a app **aparecer e
+ficar verde**, garanta também o LADO OPERACIONAL:
+1. **Chaves centrais** em `~/.config/llm-keys/keys.env`: `PULSE_BASE_URL` + `PULSE_ENROLL_TOKEN`
+   (+ por app: `TELEMETRY_APP_ID`, `TELEMETRY_EMPRESA`). A skill gera `TELEMETRY_EXPORT_KEY` se faltar.
+2. **Roteamento de `/telemetry/*` pro backend** (nginx/Cloudflare) — pegadinha nº 1: se cair no SPA,
+   o Pulse recebe HTML → "fora do ar". Nunca usar host interno de Docker como `base_url`.
+3. **Deploy** pra o enroll rodar; a `export_key` do container RODANDO deve bater com a cadastrada
+   (a do `.env` do repo pode divergir → 401). Rode a skill **uma vez POR ambiente** (dev e prod = registros separados).
+4. Ambiente é **inferido da URL pública** (não precisa setar à mão); o backend do Pulse auto-corrige
+   `prod`-em-`-dev` e recusa (400) o que não der pra inferir.
+5. **Conferir**: `GET {base_url}/telemetry/health` com `X-Telemetry-Key` → 200; e a app aparece em Soluções.
+
 ## Passo 0 — Parâmetros de conexão (do ecossistema)
 Tudo vem do arquivo central de chaves (`~/.config/llm-keys/keys.env`, fora do repo — skill
 `llm-keys`). A skill garante/escreve lá:
