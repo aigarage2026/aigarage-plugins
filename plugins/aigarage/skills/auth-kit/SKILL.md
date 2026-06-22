@@ -121,3 +121,65 @@ Admin de papéis (`admin.roles`):
 
 > Referência testada deste kit: o projeto **AuditAI** (FastAPI+SQLAlchemy+Alembic+React),
 > migrações de `users`, `roles` e `password_reset_tokens`, e a tela Admin com RBAC dinâmico.
+
+---
+
+## 🏢 Multi-tenant + Multi-empresa (extensão SaaS)
+
+> Camada de isolamento por **tenant** (inquilino/organização-cliente da plataforma) e por
+> **empresa** (cliente final dentro do tenant). Referência testada: projeto **Propostai**
+> (FastAPI+SQLAlchemy+Alembic+React). Combine com a base de auth/RBAC acima.
+
+### Modelo de dados (3 peças)
+- **tenants**: `id`, `name`, `slug` (único), `plan_slug`, limites (`max_users`,
+  `max_proposals_per_month`/`max_*`), branding (`logo_url`, `primary_color`),
+  `is_active` (bool) + `suspended_at`/`suspension_reason`, timestamps.
+- **companies** (empresa-cliente dentro do tenant): `id`, `tenant_id`, `name`, `cnpj`,
+  `razao_social`, `is_default` (bool), campos do domínio, timestamps.
+- **user_company_access**: `id`, `tenant_id`, `user_id` (FK), `company_id` (FK), `role`
+  (admin/editor/viewer) — atribui um usuário a uma empresa. Unique(`tenant_id`,`user_id`,`company_id`).
+- **users** ganham `tenant_id` (FK) e `is_platform_admin` (bool — super-admin cross-tenant).
+- **TenantMixin**: todo modelo de domínio carrega `tenant_id` — *"toda query DEVE filtrar por tenant_id"*.
+
+### Isolamento por TENANT (não-negociável)
+- `tenant_id` viaja **dentro do JWT** (no payload, junto de `sub`/`role`). Toda query de
+  domínio filtra `WHERE tenant_id = user.tenant_id`. Nunca confie em `tenant_id` vindo do body.
+- **Login bloqueia tenant suspenso** (`is_active=False` → 403); o platform admin passa.
+
+### Isolamento por EMPRESA (dentro do tenant)
+Regra recomendada: **owner/admin (e platform admin) enxergam TODAS as empresas do tenant;
+editor/viewer só as atribuídas** em `user_company_access`. Helpers (núcleo reutilizável):
+- `accessible_company_ids(db, user) -> set[str] | None` — `None` = todas (admin); senão o conjunto atribuído.
+- `assert_company_access(db, user, company_id)` — empresa existe no tenant **e** o usuário tem acesso (404/403).
+- `assert_resource_access(db, user, recurso)` — bloqueia recurso de empresa fora do escopo (**404 p/ não vazar** — anti-IDOR).
+- Aplicar em **toda** query escopada: listas filtram por `company_id IN ids` (se `ids` vazio → retorna vazio);
+  endpoints `/{id}` chamam `assert_resource_access` após carregar.
+
+### Endpoints (contratos)
+Empresas (gestão exige owner/admin):
+- `GET /api/v1/companies` → empresas que o usuário acessa (admin: todas; demais: as atribuídas)
+- `POST/PATCH/DELETE /api/v1/companies[/{id}]` (DELETE bloqueia a `is_default` e empresa com dados vinculados)
+- `GET/POST/DELETE /api/v1/companies/{id}/users[/{uid}]` → atribuir/revogar acesso (user_company_access)
+Usuários do tenant (owner/admin):
+- `GET/POST/PATCH /api/v1/users[/{id}]` — mínimo p/ atribuir gente às empresas (não se autodesativa nem rebaixa o próprio papel)
+Plataforma (restrito a `is_platform_admin`, dependência `get_platform_admin`):
+- `GET /api/v1/platform/tenants` → tenants + contagens (usuários/empresas)
+- `POST /api/v1/platform/tenants` → **onboarding**: cria tenant + usuário `owner` (senha hash) + empresa padrão (`is_default`)
+- `PATCH /api/v1/platform/tenants/{id}` → planos/limites e **suspender/reativar** (`is_active` + `suspended_at`)
+
+### Frontend (React)
+- **CompanyContext**: carrega `/api/v1/companies`, mantém a **empresa ativa** (persistida em
+  localStorage; default = `is_default` ou a 1ª). Expõe `companies`, `activeCompanyId`, `setActiveCompany`.
+- **Seletor de empresa** no header (aparece quando há +de 1 empresa). Telas de criação e
+  listas usam a empresa ativa (`company_id`).
+- **Guardas de rota**: `RequireAdmin` (owner/admin) p/ a tela de Empresas; `RequireAdmin platform`
+  (`is_platform_admin`) p/ a tela de Plataforma. Itens de menu condicionais ao papel.
+- Telas: **Empresas** (CRUD + atribuir usuários por empresa) e **Plataforma** (lista/cria/suspende tenants).
+
+### Bootstrap / cuidados
+- Designar ao menos **um `is_platform_admin`** (via env de bootstrap ou seed) — é quem cria os tenants.
+- Onboarding self-service (signup público) é opcional; o `POST /platform/tenants` já cobre o onboarding assistido.
+- Limites de plano (`max_users`/etc.) ficam no tenant — aplicar na criação de usuários/recursos quando quiser cobrar/limitar.
+
+> Referência testada desta extensão: **Propostai** — `core/access.py`, `apis/v1/companies.py`,
+> `apis/v1/users.py`, `apis/v1/platform.py`, `CompanyContext` + seletor no header.
