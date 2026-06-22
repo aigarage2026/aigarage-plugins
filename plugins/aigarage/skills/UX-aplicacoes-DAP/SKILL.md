@@ -348,6 +348,63 @@ headline `text-4xl font-extrabold text-ink-900`, bullets com pontinho teal; form
 </div>
 ```
 
+### Seletor de tema claro/escuro (preferencia do usuario no admin/Settings)
+O DAP e **claro premium por padrao**, mas suporta **escuro** (mesma identidade: accent
+teal, fundo escuro frio). Sempre ofereca a escolha em **dois lugares**: um toggle rapido
+no header (icone sol/lua) **e** uma opcao explicita na tela de **Configuracoes/admin**
+(o cliente decide e fica salvo). Em stack shadcn (variaveis HSL), o tema vive em `:root`
+(claro) e `.dark` (escuro) — veja Passo 2/3; aqui so trocamos a classe no `<html>`.
+
+**1) ThemeContext** — persiste no `localStorage`, alterna a classe `.dark` no
+`documentElement`, e expoe `theme` + `toggle` + **`setTheme`** (este ultimo e o que a
+tela de Settings usa para escolha explicita):
+```tsx
+type Theme = "light" | "dark";
+const KEY = "app.theme";
+// dentro do ThemeProvider:
+const [theme, setTheme] = useState<Theme>(() =>
+  (localStorage.getItem(KEY) as Theme | null)
+  ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+useEffect(() => {
+  document.documentElement.classList.toggle("dark", theme === "dark");
+  localStorage.setItem(KEY, theme);
+}, [theme]);
+const value = { theme, toggle: () => setTheme(t => t === "dark" ? "light" : "dark"), setTheme };
+```
+> **Sem shadcn/variaveis?** O `.dark` no `<html>` ainda funciona: defina os tokens DAP
+> claros em `:root` e os escuros em `.dark` (Passo "Sem Tailwind") — o accent teal e o
+> mesmo nos dois; muda fundo (claro premium vs escuro frio) e a rampa de cinzas.
+
+**2) Card "Aparencia" no Settings/admin** — duas opcoes selecionaveis (nada de dropdown
+escondido), o item ativo com borda/realce teal:
+```tsx
+const { theme, setTheme } = useTheme();
+// ...
+<div className="card p-5">
+  <div className="text-sm font-semibold text-ink-900 mb-1">Aparencia</div>
+  <p className="text-[11px] text-ink-500 mb-3">Escolha o tema. Fica salvo neste navegador.</p>
+  <div className="flex flex-wrap gap-3">
+    {([
+      { v: "light", label: "Claro", desc: "Fundo claro premium (padrao)" },
+      { v: "dark",  label: "Escuro", desc: "Fundo escuro, accent teal" },
+    ] as const).map(opt => (
+      <button key={opt.v} type="button" onClick={() => setTheme(opt.v)}
+        className={clsx("flex-1 min-w-[180px] rounded-lg border p-4 text-left transition-colors",
+          theme === opt.v ? "border-brand-500 bg-brand-50 ring-2 ring-brand-500/20"
+                          : "border-ink-200 hover:border-brand-500/50")}>
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-ink-900">{opt.label}</span>
+          {theme === opt.v && <span className="pill-fora">selecionado</span>}
+        </div>
+        <p className="mt-1 text-xs text-ink-500">{opt.desc}</p>
+      </button>
+    ))}
+  </div>
+</div>
+```
+> Mantenha **tambem** o toggle do header (descoberta rapida). A opcao no Settings e a
+> "fonte da verdade" da preferencia — ambos chamam o mesmo `ThemeContext`.
+
 ## Principios de UX (o "jeito DAP")
 - **Um accent so (teal).** Cor extra apenas para **status** (vermelho/amarelo/verde).
   Nunca colorir por enfeite — cor carrega significado. Em fundo claro, links/itens
@@ -399,11 +456,14 @@ body{ color:var(--ink-800); font-family:Inter,system-ui,sans-serif;
    `.btn*/.card*/.pill*/.input/.label`.
 3. Inter carregada no `index.html`.
 4. Layout sidebar+header; paginas usando `.card`, `Kpi`, `ChartCard`, pills de status.
-5. (Opcional) `rich-tooltips` para ajuda contextual, `multilang` no header,
+5. **Tema claro/escuro**: `ThemeContext` (persiste, alterna `.dark`, expoe `setTheme`),
+   toggle no header **e** card "Aparencia" no Settings/admin para o usuario escolher.
+6. (Opcional) `rich-tooltips` para ajuda contextual, `multilang` no header,
    `auth-kit` na sidebar.
 
 ## Resumo ao terminar
 Diga o que foi criado/alterado (config, CSS, componentes), confirme que e o **padrao
-de UX claro premium da DAP** (teal `#22997a` + fundo claro frio com glow) e aponte os
+de UX claro premium da DAP** (teal `#22997a` + fundo claro frio com glow), que existe a
+**escolha de tema claro/escuro** (toggle no header + opcao no Settings/admin) e aponte os
 skills irmaos que combinam (rich-tooltips, multilang, auth-kit). Mostre 1 print/rota
 de exemplo se subir o app.
