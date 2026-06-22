@@ -183,3 +183,26 @@ Plataforma (restrito a `is_platform_admin`, dependência `get_platform_admin`):
 
 > Referência testada desta extensão: **Propostai** — `core/access.py`, `apis/v1/companies.py`,
 > `apis/v1/users.py`, `apis/v1/platform.py`, `CompanyContext` + seletor no header.
+
+### 🔐 Cadastro self-service + login robusto (padrão Recrutamento/Propostai)
+
+Complementa o auth base com onboarding gated e login multi-tenant:
+- **InviteCode** (nível plataforma): `code` (único), `max_uses`/`times_used`, `expires_at`,
+  `is_active`, `assigned_plan`, `trial_days`. `is_valid` = ativo + dentro de usos + não expirado.
+- **`POST /auth/register`** (gated por invite code): valida o código → cria **tenant + usuário owner
+  + empresa padrão** → consome o código (`times_used++`) → **já loga** (emite tokens). Gestão dos
+  códigos em `/platform/invite-codes` (platform admin).
+- **Login multi-tenant**: busca o e-mail em TODOS os tenants e filtra os que batem a senha; se houver
+  **mais de um** → devolve `{requires_company_selection: true, companies:[{tenant_id, tenant_name,
+  company_name, user_role}]}` p/ o usuário escolher; senão entra direto. Tenant suspenso some da lista.
+  Auditar `last_login_ip` (de `X-Forwarded-For`).
+- **Brute-force** (Redis com fallback em memória): conta falhas por **IP** e por **e-mail** numa janela
+  (5 min); ao estourar (ex.: 10/IP, 5/e-mail) bloqueia (15 min → 429); limpa no sucesso.
+- **Refresh automático no front** (axios): no 401, renova o access token via `/auth/refresh` (com
+  **fila** p/ não duplicar entre requests concorrentes) e repete a request; só desloga se o refresh
+  falhar. Injeta `Authorization` e `X-Company-Id` em toda request.
+- **Soft-delete** (`is_active`) em tenant/company/user; excluir empresa = `is_active=False` (preserva
+  dados); listas/guardas filtram `is_active`.
+
+> Referência testada: **Propostai** — `apis/v1/auth.py` (register/login/refresh/forgot/reset/change),
+> `core/bruteforce.py`, `core/email.py` (SMTP ou dry-run), `lib/api.ts` (interceptor de refresh).
