@@ -1,7 +1,7 @@
 {
   "name": "aigarage",
-  "description": "Skills do ecossistema ai-garage / Direto ao Ponto (DAP). Design & UX: 'UX-aplicacoes-DAP' (design system claro premium + teal), 'rich-tooltips', 'multilang' (i18n), 'ux-standards', 'frontend-design'. Produto: 'support-chat' (suporte com IA, conhecimento via menu vivo), 'auth-kit' (login/RBAC/reset de senha), 'test-pack' (POC). Telemetria: 'telemetria' (auto-enroll no painel Pulse) e 'telemetry' (export incremental genérico). Operação & segurança: 'llm-keys' (chaves de LLM centralizadas), 'confirm-deletes' (confirmação em ações destrutivas), 'security-audit' (OWASP+LGPD), 'QA-Autenticacao' (auditoria AuthN/AuthZ), 'safe-stack' (Docker dev seguro).",
-  "version": "1.2.0",
+  "description": "Skills do ecossistema ai-garage / Direto ao Ponto (DAP). Design & UX: 'UX-aplicacoes-DAP' (design system claro premium + teal), 'rich-tooltips', 'multilang' (i18n), 'ux-standards', 'frontend-design'. Produto: 'support-chat' (suporte com IA, conhecimento via menu vivo), 'auth-kit' (login/RBAC/reset de senha), 'tenant' (multi-tenant: tenant/empresas/usuários, onboarding, platform admin), 'test-pack' (POC). Telemetria: 'telemetria' (auto-enroll no painel Pulse) e 'telemetry' (export incremental genérico). Operação & segurança: 'llm-keys' (chaves de LLM centralizadas), 'confirm-deletes' (confirmação em ações destrutivas), 'security-audit' (OWASP+LGPD), 'QA-Autenticacao' (auditoria AuthN/AuthZ), 'safe-stack' (Docker dev seguro).",
+  "version": "1.3.0",
   "author": {
     "name": "ai-garage",
     "email": "rogerio.ribeiro@diretoaoponto.inf.br"
