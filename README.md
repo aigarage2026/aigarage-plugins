@@ -10,6 +10,7 @@ namespaced pelo ecossistema: `/aigarage:<skill>`.
 |---|---|---|
 | **telemetria** | `/aigarage:telemetria` | Instrumenta qualquer app para telemetria de uso e a conecta ao painel central **ai-garage Pulse** (auto-enroll: captura sessões/tempo/ações/LLM, gera a `export_key`, cadastra via `POST /enroll` e liga polling ou push). |
 | **support-chat** | `/aigarage:support-chat` | Adiciona um **chat de suporte operacional com IA** (botão flutuante em todas as telas) cujo conhecimento se **sincroniza sozinho com o menu do app**: a navegação envia menu + tela atual a cada pergunta, então adicionar/renomear uma tela reflete no suporte sem editar prompt. Conversas persistidas e escopadas por tenant + usuário (anti-IDOR). |
+| **video-avatar** | `/aigarage:video-avatar` | Transforma commit, CHANGELOG, PR ou documento do repo em **vídeo com avatar falante** via MCP do HeyGen, sempre com o mesmo avatar, voz e glossário de pronúncia. Roteiro vai para aprovação em texto antes de renderizar, com estimativa de créditos e registro do gasto real — iterar em texto é grátis, iterar em vídeo não é. |
 
 > Em linguagem natural (ex.: "aplica o telemetria aqui") a skill também dispara sozinha pela
 > `description`, sem precisar do slash.
@@ -37,6 +38,7 @@ plugins/aigarage/
   .claude-plugin/plugin.json            # metadados do plugin (name: aigarage)
   skills/
     telemetria/SKILL.md                 # uma pasta por skill
+    video-avatar/SKILL.md
 ```
 
 Para adicionar uma nova skill (auditai-ui, rich-tooltips, multilang...): crie
