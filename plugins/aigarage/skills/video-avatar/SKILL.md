@@ -42,9 +42,13 @@ engine:           PREENCHER    # avatar_v se suportado, senão avatar_iv
 voice_id:         PREENCHER    # de list_voices, pt-BR
 brand_kit_id:     PREENCHER    # de list_brand_kits (pode ser vazio)
 brand_glossary_id: PREENCHER   # de list_brand_glossaries
-inventario:       docs/heygen-inventario.md
+inventario:       ~/.claude/skills/video-avatar/inventario.md
 registro:         videos/registro.md
 ```
+
+O inventário mora junto da skill, e não em `docs/` do projeto, porque lista IDs da sua
+conta HeyGen e brand kits com nome de cliente — dado que não pertence ao repositório de
+cliente nenhum.
 
 Antes de usar `avatar_id`, confira em `get_avatar_look` se ele suporta o engine escolhido. Um look treinado só para Avatar III falha silenciosamente com qualidade pior se você forçar outro engine.
 
