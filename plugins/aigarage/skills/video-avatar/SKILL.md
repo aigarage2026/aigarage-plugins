@@ -27,6 +27,14 @@ Depois `/mcp` para autenticar via OAuth. Não há chave de API neste fluxo e nen
 
 Estes são os valores padrão da consultoria. **Nunca invente um ID.** Se algum estiver como `PREENCHER`, chame a tool correspondente, mostre as opções ao usuário e peça para escolher — depois atualize este bloco.
 
+**Este bloco se preenche por instalação e nunca é versionado.** A cópia publicada no
+marketplace fica em `PREENCHER` permanentemente, de propósito: os IDs pertencem à conta
+HeyGen de quem instalou, e nome de brand kit costuma carregar nome de cliente — este
+repositório é público. Preencha em `~/.claude/skills/video-avatar/SKILL.md`, na máquina,
+e não mande o bloco preenchido de volta para cá: nem inteiro, nem "só o `avatar_id`",
+nem como exemplo dentro de outra alteração. Quem for editar a skill aqui mexe no texto e
+deixa o bloco intacto.
+
 ```yaml
 avatar_id:        PREENCHER    # de list_avatar_looks (o look id, não o group id)
 avatar_tipo:      PREENCHER    # photo | digital_twin
