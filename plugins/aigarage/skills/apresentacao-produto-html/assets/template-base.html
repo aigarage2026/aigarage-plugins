@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{PRODUTO}} — {{TAGLINE_CURTA}}</title>
+<meta name="description" content="{{SUBTITULO}}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+/* =========================================================
+   1. DESIGN TOKENS — troque --brand* pelas cores do produto
+   ========================================================= */
+:root{
+  --brand:#6D5BFF; --brand-2:#22D3EE; --brand-3:#F472B6;
+  --bg:#0A0B14; --bg-2:#11131F; --surface:#161927; --surface-2:#1E2235;
+  --line:rgba(255,255,255,.08); --text:#EEF0F8; --muted:#9AA0B8; --ok:#34D399; --warn:#FBBF24; --bad:#F87171;
+  --radius:18px; --radius-sm:10px; --shadow:0 30px 80px -20px rgba(0,0,0,.6);
+  --font:'Inter',system-ui,sans-serif; --display:'Sora','Inter',sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1); --max:1200px;
+}
+:root[data-theme="light"]{
+  --bg:#F7F8FC; --bg-2:#EEF0F7; --surface:#FFFFFF; --surface-2:#F2F4FA;
+  --line:rgba(15,20,40,.09); --text:#121528; --muted:#5B6280; --shadow:0 30px 70px -25px rgba(30,40,90,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;font-size:17px}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:var(--display);line-height:1.12;letter-spacing:-.02em}
+h1{font-size:clamp(2.4rem,6vw,4.6rem);font-weight:800}
+h2{font-size:clamp(1.9rem,4vw,3rem);font-weight:700}
+h3{font-size:1.2rem;font-weight:600}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+section{padding:120px 0;position:relative;overflow-x:clip}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--brand-2);margin-bottom:16px}
+.eyebrow::before{content:"";width:22px;height:2px;background:currentColor;border-radius:2px}
+.lead{font-size:clamp(1.05rem,1.6vw,1.25rem);color:var(--muted);max-width:640px}
+.center{text-align:center}.center .lead{margin-inline:auto}
+.grad{background:linear-gradient(90deg,var(--brand),var(--brand-2) 60%,var(--brand-3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.head{margin-bottom:56px}
+
+/* Botões */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border-radius:999px;font-weight:600;font-size:1rem;transition:transform .3s var(--ease),box-shadow .3s,background .3s;cursor:pointer;border:0}
+.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;box-shadow:0 10px 30px -8px var(--brand)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 40px -10px var(--brand)}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn-ghost:hover{background:var(--surface)}
+
+/* =========================================================
+   2. NAV + PROGRESSO + DOTS
+   ========================================================= */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--brand),var(--brand-2));z-index:100}
+.nav{position:fixed;top:0;inset-inline:0;z-index:90;transition:background .3s,backdrop-filter .3s,border-color .3s;border-bottom:1px solid transparent}
+.nav.scrolled{background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(14px);border-color:var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:1.15rem}
+.logo i{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:block}
+.nav ul{display:flex;gap:28px;list-style:none;font-size:.92rem;color:var(--muted)}
+.nav ul a:hover,.nav ul a.active{color:var(--text)}
+.nav .btn{padding:10px 18px;font-size:.9rem}
+@media(max-width:900px){.nav ul{display:none}}
+.dots{position:fixed;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:80}
+.dots a{width:8px;height:8px;border-radius:50%;background:var(--line);transition:.3s}
+.dots a.active{background:var(--brand-2);transform:scale(1.4)}
+@media(max-width:900px){.dots{display:none}}
+
+/* =========================================================
+   3. HERO
+   ========================================================= */
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:120px;overflow:hidden}
+.glow{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.glow::before,.glow::after{content:"";position:absolute;width:60vw;height:60vw;border-radius:50%;filter:blur(120px);opacity:.35;animation:float 18s var(--ease) infinite alternate}
+.glow::before{background:var(--brand);top:-20vw;left:-10vw}
+.glow::after{background:var(--brand-2);bottom:-25vw;right:-15vw;animation-delay:-9s}
+@keyframes float{to{transform:translate(8vw,6vw) scale(1.1)}}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%);z-index:0}
+.hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr 1.2fr;gap:56px;align-items:center}
+.hero h1{margin-bottom:22px}
+.hero .ctas{display:flex;gap:14px;flex-wrap:wrap;margin:34px 0 30px}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{font-size:.82rem;padding:7px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);display:inline-flex;gap:8px;align-items:center}
+.chip b{color:var(--ok)}
+.hero .wrap>*,.gallery__stage>*,.gallery__text,.tour>*,.vs>*{min-width:0}
+h1,h2,h3,p,li,span{overflow-wrap:anywhere}
+@media(max-width:980px){.hero .wrap{grid-template-columns:1fr}.hero{min-height:auto}}
+@media(max-width:640px){.nav .btn{display:none}section{padding:80px 0}.wrap{padding:0 16px}}
+
+/* =========================================================
+   4. DEVICE (moldura de tela) + HOTSPOTS
+   ========================================================= */
+.device{position:relative;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);overflow:visible;transform-style:preserve-3d;transition:transform .5s var(--ease)}
+.device__bar{height:34px;display:flex;align-items:center;gap:7px;padding:0 14px;border-bottom:1px solid var(--line);background:var(--surface-2);border-radius:14px 14px 0 0}
+.device__bar span{width:10px;height:10px;border-radius:50%;background:#ff5f57}
+.device__bar span:nth-child(2){background:#febc2e}.device__bar span:nth-child(3){background:#28c840}
+.device__bar em{margin-left:14px;font-style:normal;font-size:.72rem;color:var(--muted);background:var(--bg-2);padding:3px 12px;border-radius:6px;flex:1;max-width:320px}
+.device__screen{position:relative;aspect-ratio:16/10;overflow:hidden;border-radius:0 0 14px 14px;background:var(--bg-2)}
+.device__screen>img{width:100%;height:100%;object-fit:cover;object-position:top}
+.device.phone{max-width:300px;margin:auto;border-radius:38px;padding:12px;background:#0d0f18}
+.device.phone .device__bar{display:none}
+.device.phone .device__screen{aspect-ratio:9/19.5;border-radius:28px}
+.hotspot{position:absolute;left:var(--x);top:var(--y);z-index:5;opacity:0;transform:scale(.6);transition:.5s var(--ease)}
+.device.in-focus .hotspot{opacity:1;transform:none}
+.device.in-focus .hotspot:nth-of-type(2){transition-delay:.35s}
+.device.in-focus .hotspot:nth-of-type(3){transition-delay:.7s}
+.device.in-focus .hotspot:nth-of-type(4){transition-delay:1.05s}
+.hotspot::before{content:"";position:absolute;width:14px;height:14px;left:-7px;top:-7px;border-radius:50%;background:var(--brand-2);box-shadow:0 0 0 0 var(--brand-2);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 14px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.hotspot span{position:absolute;left:14px;top:-14px;white-space:nowrap;font-size:.74rem;font-weight:600;padding:6px 11px;border-radius:8px;background:var(--text);color:var(--bg);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.hotspot.l span{left:auto;right:14px}
+@media(max-width:640px){.hotspot span{font-size:.62rem;padding:4px 8px}}
+
+/* =========================================================
+   5. MINI UI-KIT para mockups em HTML (escala com o device)
+   ========================================================= */
+.ui{position:absolute;inset:0;display:grid;grid-template-columns:18% 1fr;font-size:clamp(6px,.95vw,12px);color:var(--text);background:var(--bg-2)}
+.ui-sidebar{background:var(--surface);border-right:1px solid var(--line);padding:1.4em 1em;display:flex;flex-direction:column;gap:.5em}
+.ui-sidebar .lg{display:flex;align-items:center;gap:.6em;font-weight:700;margin-bottom:1.2em}
+.ui-sidebar .lg i{width:1.8em;height:1.8em;border-radius:.5em;background:linear-gradient(135deg,var(--brand),var(--brand-2))}
+.ui-sidebar a{padding:.55em .8em;border-radius:.5em;color:var(--muted)}
+.ui-sidebar a.on{background:color-mix(in srgb,var(--brand) 18%,transparent);color:var(--text)}
+.ui-main{padding:1.4em 1.8em;display:flex;flex-direction:column;gap:1.2em;overflow:hidden}
+.ui-top{display:flex;justify-content:space-between;align-items:center}
+.ui-top h4{font-size:1.5em;font-family:var(--display)}
+.ui-top .av{width:2.2em;height:2.2em;border-radius:50%;background:var(--surface-2)}
+.ui-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1em}
+.ui-kpi{background:var(--surface);border:1px solid var(--line);border-radius:.8em;padding:1em}
+.ui-kpi small{color:var(--muted);display:block}
+.ui-kpi b{font-size:1.7em;font-family:var(--display)}
+.ui-kpi em{font-style:normal;color:var(--ok);font-size:.9em}
+.ui-row{display:grid;grid-template-columns:1.6fr 1fr;gap:1em;flex:1;min-height:0}
+.ui-card{background:var(--surface);border:1px solid var(--line);border-radius:.8em;padding:1em;overflow:hidden}
+.ui-card h5{font-size:1em;margin-bottom:.8em;color:var(--muted);font-weight:600}
+.ui-chart{display:flex;align-items:flex-end;gap:.6em;height:calc(100% - 2em)}
+.ui-chart i{flex:1;border-radius:.3em .3em 0 0;background:linear-gradient(var(--brand-2),var(--brand));height:var(--h);transform-origin:bottom;transform:scaleY(0);transition:transform .9s var(--ease)}
+.in-focus .ui-chart i,.ui-chart.on i{transform:scaleY(1)}
+.ui-chart i:nth-child(2){transition-delay:.06s}.ui-chart i:nth-child(3){transition-delay:.12s}.ui-chart i:nth-child(4){transition-delay:.18s}.ui-chart i:nth-child(5){transition-delay:.24s}.ui-chart i:nth-child(6){transition-delay:.3s}.ui-chart i:nth-child(7){transition-delay:.36s}.ui-chart i:nth-child(8){transition-delay:.42s}
+.ui-table{width:100%;border-collapse:collapse}
+.ui-table td,.ui-table th{padding:.6em .4em;border-bottom:1px solid var(--line);text-align:left}
+.ui-table th{color:var(--muted);font-weight:500}
+.ui-chip{display:inline-block;padding:.15em .7em;border-radius:99px;font-size:.85em;background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.ui-chip.w{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.ui-chip.b{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.ui-ai{background:linear-gradient(135deg,color-mix(in srgb,var(--brand) 22%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--brand) 40%,transparent);border-radius:.8em;padding:1em;display:flex;gap:.8em}
+.ui-ai::before{content:"✦";color:var(--brand-2);font-size:1.4em;line-height:1}
+.ui-btn{display:inline-block;padding:.5em 1em;border-radius:.5em;background:var(--brand);color:#fff;font-weight:600}
+.typing::after{content:"▍";animation:blink 1s steps(1) infinite;color:var(--brand-2)}
+@keyframes blink{50%{opacity:0}}
+
+/* =========================================================
+   6. CARDS, DOR, VIRADA, PILARES
+   ========================================================= */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;transition:transform .4s var(--ease),border-color .4s}
+.card:hover{transform:translateY(-6px);border-color:color-mix(in srgb,var(--brand) 50%,transparent)}
+.card .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:1.3rem;margin-bottom:18px;background:color-mix(in srgb,var(--brand) 16%,transparent)}
+.card p{color:var(--muted);margin-top:8px;font-size:.96rem}
+.card .cost{margin-top:16px;font-size:.85rem;color:var(--bad);font-weight:600}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.vs>div{border-radius:var(--radius);padding:34px;border:1px solid var(--line)}
+.vs .before{background:var(--surface)}
+.vs .after{background:linear-gradient(160deg,color-mix(in srgb,var(--brand) 22%,var(--surface)),var(--surface));border-color:color-mix(in srgb,var(--brand) 45%,transparent)}
+.vs h3{margin-bottom:18px}
+.vs ul{list-style:none;display:grid;gap:12px}
+.vs li{display:flex;gap:12px;color:var(--muted)}
+.vs .before li::before{content:"✕";color:var(--bad);font-weight:700}
+.vs .after li::before{content:"✓";color:var(--ok);font-weight:700}
+.vs .after li{color:var(--text)}
+@media(max-width:760px){.vs{grid-template-columns:1fr}}
+
+/* =========================================================
+   7. GALERIA DE TELAS (abas + autoplay)
+   ========================================================= */
+.gallery__tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:34px}
+.gallery__tab{position:relative;overflow:hidden;padding:10px 18px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);font:600 .9rem var(--font);cursor:pointer;transition:.3s}
+.gallery__tab.on{color:var(--text);border-color:color-mix(in srgb,var(--brand) 60%,transparent)}
+.gallery__tab i{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--brand-2)}
+.gallery__tab.on i{animation:fill var(--dur,7s) linear forwards}
+@keyframes fill{to{width:100%}}
+.gallery__stage{display:grid;grid-template-columns:1fr 2fr;gap:44px;align-items:center}
+.gallery__slide{display:none}
+.gallery__slide.on{display:contents}
+.gallery__slide.on .gallery__text{animation:inL .7s var(--ease)}
+.gallery__slide.on .device{animation:inR .8s var(--ease)}
+@keyframes inL{from{opacity:0;transform:translateX(-30px)}}
+@keyframes inR{from{opacity:0;transform:translateX(40px) scale(.97)}}
+.gallery__text h3{font-size:1.7rem;margin-bottom:12px}
+.gallery__text p{color:var(--muted)}
+.gallery__text ul{margin-top:20px;list-style:none;display:grid;gap:10px}
+.gallery__text li{display:flex;gap:10px}
+.gallery__text li::before{content:"→";color:var(--brand-2)}
+@media(max-width:900px){.gallery__stage{grid-template-columns:1fr}}
+
+/* =========================================================
+   8. TOUR (scroll sticky)
+   ========================================================= */
+.tour{display:grid;grid-template-columns:1fr 1.4fr;gap:60px}
+.tour__steps>div{min-height:70vh;display:flex;flex-direction:column;justify-content:center;opacity:.25;transition:opacity .5s}
+.tour__steps>div.on{opacity:1}
+.tour__steps .n{font-family:var(--display);font-size:.9rem;color:var(--brand-2);font-weight:700;margin-bottom:8px}
+.tour__steps h3{font-size:1.6rem;margin-bottom:12px}
+.tour__steps p{color:var(--muted)}
+.tour__view{position:sticky;top:15vh;height:70vh;display:flex;align-items:center}
+.tour__view .device{width:100%;position:absolute;opacity:0;transform:translateY(30px) scale(.97);transition:.7s var(--ease)}
+.tour__view .device.on{opacity:1;transform:none}
+@media(max-width:900px){.tour{grid-template-columns:1fr}.tour__view{display:none}.tour__steps>div{min-height:auto;opacity:1;padding:24px 0}.tour__steps .device{display:block!important;margin-top:20px}}
+.tour__steps .device{display:none}
+
+/* =========================================================
+   9. PASSOS, NÚMEROS, TIMELINE, FAQ, MARQUEE, CTA
+   ========================================================= */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;position:relative;counter-reset:s}
+.steps::before{content:"";position:absolute;top:24px;left:24px;right:24px;height:2px;background:var(--line)}
+.steps::after{content:"";position:absolute;top:24px;left:24px;height:2px;width:0;background:linear-gradient(90deg,var(--brand),var(--brand-2));transition:width 1.8s var(--ease)}
+.steps.in::after{width:calc(100% - 48px)}
+.step{position:relative;z-index:1}
+.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--surface);border:2px solid var(--brand);font:700 1.1rem var(--display);margin-bottom:18px}
+.step p{color:var(--muted);font-size:.95rem;margin-top:6px}
+@media(max-width:760px){.steps::before,.steps::after{display:none}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.stat{padding:32px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line)}
+.stat b{display:block;font:800 clamp(2.4rem,4.5vw,3.4rem) var(--display)}
+.stat p{color:var(--muted)}
+.stat small{display:block;margin-top:10px;font-size:.75rem;color:var(--muted);opacity:.7}
+.timeline{display:grid;gap:0;max-width:760px;margin:auto}
+.tl{display:grid;grid-template-columns:120px 1fr;gap:24px;padding:22px 0;border-bottom:1px solid var(--line)}
+.tl span{font:700 .9rem var(--display);color:var(--brand-2)}
+.tl p{color:var(--muted)}
+.faq{max-width:780px;margin:auto}
+.faq details{border-bottom:1px solid var(--line);padding:20px 0}
+.faq summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between}
+.faq summary::after{content:"+";color:var(--brand-2);transition:.3s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{color:var(--muted);margin-top:12px}
+.marquee{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);margin-top:60px}
+.marquee>div{display:flex;gap:14px;width:max-content;animation:mq 40s linear infinite}
+@keyframes mq{to{transform:translateX(-50%)}}
+.cta-final{text-align:center;overflow:hidden}
+.cta-final .box{position:relative;border-radius:32px;padding:90px 30px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.cta-final .box>*{position:relative;z-index:1}
+.cta-final .ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+footer{padding:40px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+/* =========================================================
+   10. REVEAL (só com JS) + REDUCED MOTION
+   ========================================================= */
+.js [data-reveal]{opacity:0;transform:translateY(34px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.js [data-reveal="left"]{transform:translateX(-40px)}
+.js [data-reveal="right"]{transform:translateX(40px)}
+.js [data-reveal="zoom"]{transform:scale(.92)}
+.js [data-reveal].in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js [data-reveal]{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+}
+.theme-toggle{position:fixed;left:20px;bottom:20px;z-index:80;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;font-size:1.1rem}
+.kbd-hint{position:fixed;right:20px;bottom:20px;z-index:80;font-size:.72rem;color:var(--muted);background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:8px}
+@media(max-width:900px){.kbd-hint{display:none}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<!-- ================= NAV ================= -->
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a href="#hero" class="logo"><i></i>{{PRODUTO}}</a>
+    <ul>
+      <li><a href="#dor">O problema</a></li>
+      <li><a href="#solucao">Solução</a></li>
+      <li><a href="#telas">Telas</a></li>
+      <li><a href="#tour">Na prática</a></li>
+      <li><a href="#resultados">Resultados</a></li>
+      <li><a href="#implantacao">Implantação</a></li>
+    </ul>
+    <a href="#cta" class="btn btn-primary">{{CTA_CURTO}}</a>
+  </div>
+</nav>
+<nav class="dots" id="dots" aria-label="Seções"></nav>
+
+<!-- ================= 1. HERO ================= -->
+<section class="hero" id="hero" data-section>
+  <div class="glow"></div><div class="grid-bg"></div>
+  <div class="wrap">
+    <div>
+      <div class="eyebrow" data-reveal>{{CATEGORIA_DO_PRODUTO}}</div>
+      <h1 data-reveal data-delay="100">{{TAGLINE_PARTE_1}} <span class="grad">{{TAGLINE_DESTAQUE}}</span></h1>
+      <p class="lead" data-reveal data-delay="200">{{SUBTITULO: promessa + para quem}}</p>
+      <div class="ctas" data-reveal data-delay="300">
+        <a href="#cta" class="btn btn-primary">{{CTA_PRINCIPAL}} →</a>
+        <a href="#telas" class="btn btn-ghost">Ver as telas</a>
+      </div>
+      <div class="chips" data-reveal data-delay="400">
+        <span class="chip"><b>●</b> {{PROVA_1}}</span>
+        <span class="chip"><b>●</b> {{PROVA_2}}</span>
+        <span class="chip"><b>●</b> {{PROVA_3}}</span>
+      </div>
+    </div>
+    <div data-reveal="zoom" data-delay="250" data-parallax="0.08">
+      <!-- Device do hero: tela principal (dashboard). Troque por <img src="data:image/jpeg;base64,..."> se tiver captura -->
+      <div class="device" data-tilt>
+        <div class="device__bar"><span></span><span></span><span></span><em>app.{{dominio}}/dashboard</em></div>
+        <div class="device__screen">
+          <div class="ui">
+            <aside class="ui-sidebar">
+              <div class="lg"><i></i>{{PRODUTO}}</div>
+              <a class="on">Visão geral</a><a>{{MODULO_1}}</a><a>{{MODULO_2}}</a><a>{{MODULO_3}}</a><a>Relatórios</a>
+            </aside>
+            <div class="ui-main">
+              <div class="ui-top"><h4>Bom dia, {{NOME_FICTICIO}}</h4><div class="av"></div></div>
+              <div class="ui-kpis">
+                <div class="ui-kpi"><small>{{KPI_1}}</small><b>{{V1}}</b> <em>{{D1}}</em></div>
+                <div class="ui-kpi"><small>{{KPI_2}}</small><b>{{V2}}</b> <em>{{D2}}</em></div>
+                <div class="ui-kpi"><small>{{KPI_3}}</small><b>{{V3}}</b> <em>{{D3}}</em></div>
+                <div class="ui-kpi"><small>{{KPI_4}}</small><b>{{V4}}</b> <em>{{D4}}</em></div>
+              </div>
+              <div class="ui-row">
+                <div class="ui-card"><h5>{{TITULO_GRAFICO}}</h5>
+                  <div class="ui-chart"><i style="--h:40%"></i><i style="--h:55%"></i><i style="--h:48%"></i><i style="--h:70%"></i><i style="--h:62%"></i><i style="--h:82%"></i><i style="--h:76%"></i><i style="--h:95%"></i></div>
+                </div>
+                <div class="ui-ai"><div><b>Insight da IA</b><br><span class="typing" data-text="{{FRASE_DA_IA}}"></span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hotspot" style="--x:52%;--y:30%"><span>{{HOTSPOT_1}}</span></div>
+        <div class="hotspot l" style="--x:88%;--y:66%"><span>{{HOTSPOT_2}}</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2. DOR ================= -->
+<section id="dor" data-section>
+  <div class="wrap">
+    <div class="head center">
+      <div class="eyebrow" data-reveal>O problema</div>
+      <h2 data-reveal>{{TITULO_DOR}}</h2>
+      <p class="lead" data-reveal>{{SUBTITULO_DOR}}</p>
+    </div>
+    <div class="cards">
+      <!-- repita 3–4x -->
+      <div class="card" data-reveal data-delay="0"><div class="ic">⏱</div><h3>{{DOR_1}}</h3><p>{{DOR_1_DESC}}</p><div class="cost">{{CUSTO_1}}</div></div>
+      <div class="card" data-reveal data-delay="120"><div class="ic">⚠</div><h3>{{DOR_2}}</h3><p>{{DOR_2_DESC}}</p><div class="cost">{{CUSTO_2}}</div></div>
+      <div class="card" data-reveal data-delay="240"><div class="ic">📉</div><h3>{{DOR_3}}</h3><p>{{DOR_3_DESC}}</p><div class="cost">{{CUSTO_3}}</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. VIRADA ================= -->
+<section id="virada" data-section>
+  <div class="wrap">
+    <div class="head center"><div class="eyebrow" data-reveal>Antes × depois</div><h2 data-reveal>{{TITULO_VIRADA}}</h2></div>
+    <div class="vs">
+      <div class="before" data-reveal="left"><h3>Hoje</h3><ul><li>{{ANTES_1}}</li><li>{{ANTES_2}}</li><li>{{ANTES_3}}</li><li>{{ANTES_4}}</li></ul></div>
+      <div class="after" data-reveal="right"><h3>Com <span class="grad">{{PRODUTO}}</span></h3><ul><li>{{DEPOIS_1}}</li><li>{{DEPOIS_2}}</li><li>{{DEPOIS_3}}</li><li>{{DEPOIS_4}}</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4. SOLUÇÃO ================= -->
+<section id="solucao" data-section>
+  <div class="wrap">
+    <div class="head center">
+      <div class="eyebrow" data-reveal>A solução</div>
+      <h2 data-reveal>{{POSICIONAMENTO}}</h2>
+      <p class="lead" data-reveal>{{DESCRICAO_SOLUCAO}}</p>
+    </div>
+    <div class="cards">
+      <div class="card" data-reveal><div class="ic">✦</div><h3>{{PILAR_1}}</h3><p>{{PILAR_1_DESC}}</p></div>
+      <div class="card" data-reveal data-delay="120"><div class="ic">⚡</div><h3>{{PILAR_2}}</h3><p>{{PILAR_2_DESC}}</p></div>
+      <div class="card" data-reveal data-delay="240"><div class="ic">◎</div><h3>{{PILAR_3}}</h3><p>{{PILAR_3_DESC}}</p></div>
+    </div>
+    <div class="marquee"><div>
+      <!-- capacidades / integrações; o JS duplica o conteúdo para o loop -->
+      <span class="chip">{{CAPACIDADE_1}}</span><span class="chip">{{CAPACIDADE_2}}</span><span class="chip">{{CAPACIDADE_3}}</span><span class="chip">{{CAPACIDADE_4}}</span><span class="chip">{{CAPACIDADE_5}}</span><span class="chip">{{CAPACIDADE_6}}</span>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= 5. TELAS (galeria) ================= -->
+<section id="telas" data-section>
+  <div class="wrap">
+    <div class="head center">
+      <div class="eyebrow" data-reveal>Por dentro do produto</div>
+      <h2 data-reveal>{{TITULO_TELAS}}</h2>
+      <p class="lead" data-reveal>{{SUBTITULO_TELAS}}</p>
+    </div>
+    <div class="gallery" data-reveal data-autoplay="7000">
+      <div class="gallery__tabs"></div><!-- abas geradas pelo JS a partir de data-tab -->
+      <div class="gallery__stage">
+        <!-- ===== SLIDE (repita para cada tela, 5–8) ===== -->
+        <div class="gallery__slide" data-tab="{{NOME_ABA_1}}">
+          <div class="gallery__text">
+            <div class="eyebrow">Tela 01</div>
+            <h3>{{TITULO_TELA_1}}</h3>
+            <p>{{BENEFICIO_TELA_1}}</p>
+            <ul><li>{{PONTO_1}}</li><li>{{PONTO_2}}</li><li>{{PONTO_3}}</li></ul>
+          </div>
+          <div class="device">
+            <div class="device__bar"><span></span><span></span><span></span><em>app.{{dominio}}/{{rota}}</em></div>
+            <div class="device__screen">
+              <!-- OPÇÃO A: <img src="data:image/jpeg;base64,..." alt="{{TITULO_TELA_1}}"> -->
+              <!-- OPÇÃO B: mockup com o mini UI-kit (.ui, .ui-sidebar, .ui-main, .ui-kpi, .ui-table, .ui-ai...) -->
+              <div class="ui">
+                <aside class="ui-sidebar"><div class="lg"><i></i>{{PRODUTO}}</div><a>Visão geral</a><a class="on">{{MODULO_1}}</a><a>{{MODULO_2}}</a></aside>
+                <div class="ui-main">
+                  <div class="ui-top"><h4>{{MODULO_1}}</h4><span class="ui-btn">+ Novo</span></div>
+                  <div class="ui-card" style="flex:1">
+                    <table class="ui-table">
+                      <tr><th>{{COL_1}}</th><th>{{COL_2}}</th><th>{{COL_3}}</th><th>Status</th></tr>
+                      <tr><td>{{L1C1}}</td><td>{{L1C2}}</td><td>{{L1C3}}</td><td><span class="ui-chip">{{OK}}</span></td></tr>
+                      <tr><td>{{L2C1}}</td><td>{{L2C2}}</td><td>{{L2C3}}</td><td><span class="ui-chip w">{{ATENCAO}}</span></td></tr>
+                      <tr><td>{{L3C1}}</td><td>{{L3C2}}</td><td>{{L3C3}}</td><td><span class="ui-chip">{{OK}}</span></td></tr>
+                      <tr><td>{{L4C1}}</td><td>{{L4C2}}</td><td>{{L4C3}}</td><td><span class="ui-chip b">{{CRITICO}}</span></td></tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="hotspot" style="--x:72%;--y:18%"><span>{{HOTSPOT_A}}</span></div>
+            <div class="hotspot l" style="--x:92%;--y:62%"><span>{{HOTSPOT_B}}</span></div>
+            <div class="hotspot" style="--x:28%;--y:48%"><span>{{HOTSPOT_C}}</span></div>
+          </div>
+        </div>
+        <!-- ===== /SLIDE ===== -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6. TOUR (scroll sticky) ================= -->
+<section id="tour" data-section>
+  <div class="wrap">
+    <div class="head"><div class="eyebrow" data-reveal>Na prática</div><h2 data-reveal>{{TITULO_TOUR}}</h2></div>
+    <div class="tour">
+      <div class="tour__steps">
+        <!-- cada etapa: texto + (no mobile) cópia da tela. data-view aponta para o id do device em .tour__view -->
+        <div data-view="v1"><div class="n">08:00</div><h3>{{ETAPA_1}}</h3><p>{{ETAPA_1_DESC}}</p></div>
+        <div data-view="v2"><div class="n">10:30</div><h3>{{ETAPA_2}}</h3><p>{{ETAPA_2_DESC}}</p></div>
+        <div data-view="v3"><div class="n">17:00</div><h3>{{ETAPA_3}}</h3><p>{{ETAPA_3_DESC}}</p></div>
+      </div>
+      <div class="tour__view">
+        <div class="device" id="v1"><div class="device__bar"><span></span><span></span><span></span></div><div class="device__screen"><!-- tela etapa 1 --></div></div>
+        <div class="device" id="v2"><div class="device__bar"><span></span><span></span><span></span></div><div class="device__screen"><!-- tela etapa 2 --></div></div>
+        <div class="device" id="v3"><div class="device__bar"><span></span><span></span><span></span></div><div class="device__screen"><!-- tela etapa 3 --></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7. COMO FUNCIONA ================= -->
+<section id="como" data-section>
+  <div class="wrap">
+    <div class="head center"><div class="eyebrow" data-reveal>Como funciona</div><h2 data-reveal>{{TITULO_COMO}}</h2></div>
+    <div class="steps" data-reveal>
+      <div class="step"><h3>{{PASSO_1}}</h3><p>{{PASSO_1_DESC}}</p></div>
+      <div class="step"><h3>{{PASSO_2}}</h3><p>{{PASSO_2_DESC}}</p></div>
+      <div class="step"><h3>{{PASSO_3}}</h3><p>{{PASSO_3_DESC}}</p></div>
+      <div class="step"><h3>{{PASSO_4}}</h3><p>{{PASSO_4_DESC}}</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 8. RESULTADOS / ROI ================= -->
+<section id="resultados" data-section>
+  <div class="wrap">
+    <div class="head center"><div class="eyebrow" data-reveal>Resultados</div><h2 data-reveal>{{TITULO_ROI}}</h2></div>
+    <div class="stats">
+      <div class="stat" data-reveal><b class="grad" data-count="{{N1}}" data-suffix="{{SUF1}}">0</b><p>{{ROI_1}}</p><small>{{FONTE_OU_ESTIMATIVA_1}}</small></div>
+      <div class="stat" data-reveal data-delay="120"><b class="grad" data-count="{{N2}}" data-suffix="{{SUF2}}">0</b><p>{{ROI_2}}</p><small>{{FONTE_OU_ESTIMATIVA_2}}</small></div>
+      <div class="stat" data-reveal data-delay="240"><b class="grad" data-count="{{N3}}" data-suffix="{{SUF3}}">0</b><p>{{ROI_3}}</p><small>{{FONTE_OU_ESTIMATIVA_3}}</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 9. DIFERENCIAIS ================= -->
+<section id="diferenciais" data-section>
+  <div class="wrap">
+    <div class="head center"><div class="eyebrow" data-reveal>Por que nós</div><h2 data-reveal>{{TITULO_DIFERENCIAIS}}</h2></div>
+    <div class="cards">
+      <div class="card" data-reveal><div class="ic">🧠</div><h3>{{DIF_1}}</h3><p>{{DIF_1_DESC}}</p></div>
+      <div class="card" data-reveal data-delay="100"><div class="ic">🔌</div><h3>{{DIF_2}}</h3><p>{{DIF_2_DESC}}</p></div>
+      <div class="card" data-reveal data-delay="200"><div class="ic">🎯</div><h3>{{DIF_3}}</h3><p>{{DIF_3_DESC}}</p></div>
+      <div class="card" data-reveal data-delay="300"><div class="ic">🤝</div><h3>{{DIF_4}}</h3><p>{{DIF_4_DESC}}</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 10. SEGURANÇA + FAQ ================= -->
+<section id="confianca" data-section>
+  <div class="wrap">
+    <div class="head center"><div class="eyebrow" data-reveal>Segurança e confiança</div><h2 data-reveal>{{TITULO_SEGURANCA}}</h2></div>
+    <div class="chips" style="justify-content:center;margin-bottom:50px" data-reveal>
+      <span class="chip">🔒 LGPD</span><span class="chip">👤 Controle de acesso por perfil</span><span class="chip">📜 Trilha de auditoria</span><span class="chip">☁ {{HOSPEDAGEM}}</span>
+    </div>
+    <div class="faq" data-reveal>
+      <details><summary>{{PERGUNTA_1}}</summary><p>{{RESPOSTA_1}}</p></details>
+      <details><summary>{{PERGUNTA_2}}</summary><p>{{RESPOSTA_2}}</p></details>
+      <details><summary>{{PERGUNTA_3}}</summary><p>{{RESPOSTA_3}}</p></details>
+      <details><summary>{{PERGUNTA_4}}</summary><p>{{RESPOSTA_4}}</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 11. IMPLANTAÇÃO ================= -->
+<section id="implantacao" data-section>
+  <div class="wrap">
+    <div class="head center"><div class="eyebrow" data-reveal>Implantação</div><h2 data-reveal>{{TITULO_IMPLANTACAO}}</h2></div>
+    <div class="timeline">
+      <div class="tl" data-reveal><span>{{FASE_1_PRAZO}}</span><div><h3>{{FASE_1}}</h3><p>{{FASE_1_DESC}}</p></div></div>
+      <div class="tl" data-reveal><span>{{FASE_2_PRAZO}}</span><div><h3>{{FASE_2}}</h3><p>{{FASE_2_DESC}}</p></div></div>
+      <div class="tl" data-reveal><span>{{FASE_3_PRAZO}}</span><div><h3>{{FASE_3}}</h3><p>{{FASE_3_DESC}}</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 12. CTA ================= -->
+<section class="cta-final" id="cta" data-section>
+  <div class="wrap">
+    <div class="box" data-reveal="zoom">
+      <div class="glow"></div>
+      <div class="eyebrow">Próximo passo</div>
+      <h2>{{TITULO_CTA}}</h2>
+      <p class="lead" style="margin:18px auto 0">{{SUBTITULO_CTA}}</p>
+      <div class="ctas">
+        <a href="{{LINK_AGENDA_OU_MAILTO}}" class="btn btn-primary">{{CTA_PRINCIPAL}} →</a>
+        <a href="{{LINK_WHATSAPP}}" class="btn btn-ghost">Falar no WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap"><span>{{PRODUTO}} · {{CONSULTORIA}}</span><span>{{CONTATO}}</span></div></footer>
+
+<button class="theme-toggle" id="theme" aria-label="Alternar tema">◐</button>
+<div class="kbd-hint">← → navegar · F tela cheia</div>
+
+<script>
+(()=>{
+const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>[...c.querySelectorAll(s)];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Reveal + contadores + passos + foco nos devices */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting) return;
+  const el=e.target, d=+el.dataset.delay||0;
+  setTimeout(()=>{el.classList.add('in'); if(el.matches('.steps')) el.classList.add('in');},d);
+  io.unobserve(el);
+}),{threshold:.15});
+$$('[data-reveal]').forEach(el=>io.observe(el));
+
+const countIO=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting) return; const el=e.target, end=parseFloat(el.dataset.count), suf=el.dataset.suffix||'', pre=el.dataset.prefix||'';
+  const dec=(el.dataset.count.split('.')[1]||'').length, t0=performance.now(), dur=reduce?0:1600;
+  const fmt=v=>pre+v.toLocaleString('pt-BR',{minimumFractionDigits:dec,maximumFractionDigits:dec})+suf;
+  const tick=t=>{const p=dur?Math.min((t-t0)/dur,1):1; el.textContent=fmt(end*(1-Math.pow(1-p,3))); if(p<1) requestAnimationFrame(tick);};
+  requestAnimationFrame(tick); countIO.unobserve(el);
+}),{threshold:.5});
+$$('[data-count]').forEach(el=>countIO.observe(el));
+
+const focusIO=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('in-focus',e.isIntersecting)),{threshold:.45});
+$$('.hero .device').forEach(el=>focusIO.observe(el));
+
+/* Texto digitando */
+function type(el){ if(el.dataset.done) return; el.dataset.done=1; const txt=el.dataset.text||''; if(reduce){el.textContent=txt;el.classList.remove('typing');return;}
+  let i=0; const go=()=>{el.textContent=txt.slice(0,++i); if(i<txt.length) setTimeout(go,22+Math.random()*30); else setTimeout(()=>el.classList.remove('typing'),1200);}; go(); }
+const typeIO=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting && e.target.offsetParent) {setTimeout(()=>type(e.target),600); typeIO.unobserve(e.target);} }),{threshold:.6});
+$$('.typing').forEach(el=>typeIO.observe(el));
+
+/* Galeria com abas + autoplay */
+$$('.gallery').forEach(g=>{
+  const slides=$$('.gallery__slide',g), tabs=$('.gallery__tabs',g), dur=+g.dataset.autoplay||7000; let cur=0, timer, visible=false, paused=false;
+  g.style.setProperty('--dur',dur+'ms');
+  slides.forEach((s,i)=>{const b=document.createElement('button'); b.className='gallery__tab'; b.innerHTML=s.dataset.tab+'<i></i>'; b.onclick=()=>{paused=true; show(i);}; tabs.appendChild(b);});
+  const btns=$$('.gallery__tab',g);
+  function show(i){ cur=(i+slides.length)%slides.length;
+    slides.forEach((s,k)=>s.classList.toggle('on',k===cur)); btns.forEach((b,k)=>{b.classList.remove('on'); if(k===cur){void b.offsetWidth; b.classList.add('on');}});
+    const dev=$('.device',slides[cur]); $$('.device',g).forEach(d=>d.classList.remove('in-focus')); requestAnimationFrame(()=>setTimeout(()=>dev&&dev.classList.add('in-focus'),300));
+    $$('.typing',slides[cur]).forEach(t=>setTimeout(()=>type(t),700));
+    clearTimeout(timer); if(!reduce && !paused && visible) timer=setTimeout(()=>show(cur+1),dur);
+    if(paused) btns[cur].querySelector('i').style.animation='none';
+  }
+  new IntersectionObserver(([e])=>{visible=e.isIntersecting; if(visible) show(cur); else clearTimeout(timer);},{threshold:.3}).observe(g);
+  g.addEventListener('mouseenter',()=>clearTimeout(timer)); g.addEventListener('mouseleave',()=>{if(!paused&&!reduce) timer=setTimeout(()=>show(cur+1),dur/2);});
+  show(0);
+});
+
+/* Tour sticky */
+$$('.tour').forEach(t=>{
+  const steps=$$('.tour__steps>[data-view]',t);
+  // cópia das telas para o mobile
+  steps.forEach(s=>{const v=document.getElementById(s.dataset.view); if(v){const c=v.cloneNode(true); c.removeAttribute('id'); c.classList.add('in-focus'); s.appendChild(c);} });
+  const sio=new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) return;
+    steps.forEach(s=>s.classList.toggle('on',s===e.target));
+    $$('.tour__view .device',t).forEach(d=>{const on=d.id===e.target.dataset.view; d.classList.toggle('on',on); d.classList.toggle('in-focus',on); if(on) $$('.typing',d).forEach(type);});
+  }),{rootMargin:'-45% 0px -45% 0px'});
+  steps.forEach(s=>sio.observe(s));
+});
+
+/* Marquee: duplica conteúdo */
+$$('.marquee>div').forEach(m=>m.innerHTML+=m.innerHTML);
+
+/* Parallax + tilt */
+const par=$$('[data-parallax]');
+if(!reduce){
+  addEventListener('scroll',()=>{const y=scrollY; par.forEach(el=>el.style.transform=`translateY(${y*parseFloat(el.dataset.parallax)}px)`);},{passive:true});
+  $$('[data-tilt]').forEach(el=>{
+    el.parentElement.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; el.style.transform=`perspective(1200px) rotateY(${x*8}deg) rotateX(${-y*8}deg)`;});
+    el.parentElement.addEventListener('mouseleave',()=>el.style.transform='');
+  });
+}
+
+/* Nav, progresso, dots */
+const nav=$('#nav'), prog=$('#progress'), sections=$$('[data-section]'), dots=$('#dots');
+sections.forEach(s=>{const a=document.createElement('a'); a.href='#'+s.id; a.title=s.id; dots.appendChild(a);});
+const dotLinks=$$('a',dots), navLinks=$$('.nav ul a');
+addEventListener('scroll',()=>{ const h=document.documentElement; prog.style.width=(scrollY/(h.scrollHeight-innerHeight)*100)+'%'; nav.classList.toggle('scrolled',scrollY>20); },{passive:true});
+const secIO=new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) return; const h='#'+e.target.id;
+  [...dotLinks,...navLinks].forEach(a=>a.classList.toggle('active',a.getAttribute('href')===h)); }),{rootMargin:'-50% 0px -50% 0px'});
+sections.forEach(s=>secIO.observe(s));
+
+/* Modo apresentação: ← → / PageUp PageDown / F */
+const idx=()=>{let i=0; sections.forEach((s,k)=>{if(s.getBoundingClientRect().top<=innerHeight*.4) i=k;}); return i;};
+addEventListener('keydown',e=>{
+  if(e.target.closest('input,textarea')) return;
+  if(['ArrowRight','PageDown'].includes(e.key)){e.preventDefault(); sections[Math.min(idx()+1,sections.length-1)].scrollIntoView({behavior:reduce?'auto':'smooth'});}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault(); sections[Math.max(idx()-1,0)].scrollIntoView({behavior:reduce?'auto':'smooth'});}
+  if(e.key.toLowerCase()==='f'){ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.(); }
+});
+
+/* Tema */
+$('#theme').onclick=()=>{const r=document.documentElement; r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'; try{localStorage.setItem('theme',r.dataset.theme)}catch(_){} };
+try{const t=localStorage.getItem('theme'); if(t) document.documentElement.dataset.theme=t;}catch(_){}
+})();
+</script>
+</body>
+</html>

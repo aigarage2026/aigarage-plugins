@@ -6,15 +6,17 @@
   },
   "metadata": {
     "description": "Plugins e skills do ecossistema ai-garage.",
-    "version": "1.5.0"
+    "version": "1.6.0"
   },
   "plugins": [
     {
       "name": "aigarage",
       "source": "./plugins/aigarage",
-      "description": "Skills do ecossistema ai-garage / DAP: UX-aplicacoes-DAP, auditai-ui, support-chat, telemetria, telemetry, llm-keys, auth-kit, tenant, confirm-deletes, security-audit, QA-Autenticacao, rich-tooltips, multilang, ux-standards, frontend-design, safe-stack, test-pack, video-avatar.",
-      "version": "1.5.0",
-      "author": { "name": "ai-garage" }
+      "description": "Skills do ecossistema ai-garage / DAP: UX-aplicacoes-DAP, auditai-ui, support-chat, telemetria, telemetry, llm-keys, auth-kit, tenant, confirm-deletes, security-audit, QA-Autenticacao, rich-tooltips, multilang, ux-standards, frontend-design, safe-stack, test-pack, video-avatar, apresentacao-produto-html.",
+      "version": "1.6.0",
+      "author": {
+        "name": "ai-garage"
+      }
     }
   ]
 }
