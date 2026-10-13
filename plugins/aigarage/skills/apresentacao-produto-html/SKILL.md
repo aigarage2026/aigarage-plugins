@@ -16,7 +16,8 @@ Leia antes de construir:
 - `assets/template-base.html` — esqueleto com design tokens, componentes e motor de animação. **Parta dele**, não do zero.
 
 Scripts de apoio:
-- `scripts/capturar_telas.py <url-base> <rota1> <rota2>...` — screenshots via Playwright em `./telas/`
+- `scripts/capturar_sistema.py roteiro.json --saida telas` — **padrão**: abre o sistema, faz login, navega, clica, mascara o que não pode aparecer, fotografa telas e relatórios e baixa documentos gerados (PDF vira imagem de página). Roteiro de exemplo em `references/roteiro-captura.exemplo.json`
+- `scripts/capturar_telas.py <url-base> <rota1> <rota2>...` — versão mínima, só rotas públicas sem login
 - `scripts/embutir_imagem.py <arquivo>` — imprime o data URI base64 para colar no `<img src>`
 - `scripts/checar_copy.py <arquivo>.html` — acha travessão, emoji, fórmulas e vocabulário de IA no texto visível; sai com erro se encontrar
 
@@ -52,10 +53,17 @@ Se faltar número real, use linguagem qualitativa ou marque como "estimativa" �
 ### 2. Definir as telas
 Escolha 5 a 8 telas que contam a jornada do usuário (ex.: login/onboarding → dashboard → fluxo principal → resultado da IA → relatório → configurações/integrações). Para cada uma defina: título persuasivo, 1 frase de benefício, 3 hotspots (callouts) apontando o que importa.
 
-Obtenha as telas por ordem de preferência (detalhes em `references/telas-e-animacoes.md`):
-1. **Capturas reais** — se o app sobe localmente, use Playwright para tirar screenshots e embuta em base64.
-2. **Mockups fiéis em HTML/CSS** — reconstruídos a partir do código dos componentes, com o tema real e dados de exemplo plausíveis.
-3. **Mockups conceituais** — quando não há código, desenhe telas coerentes com o briefing, no estilo do produto.
+**Padrão: abrir o sistema e fotografar como ele é.** A apresentação mostra o produto real, telas e relatórios, e não uma reconstrução. Mockup só entra quando o sistema não pode ser aberto, e então a entrega diz isso.
+
+1. **Suba o sistema** (ou use um ambiente de homologação/dev que já esteja no ar). Prefira ambiente com dados de demonstração ou já anonimizados.
+2. **Credencial fora do roteiro.** Use o usuário de seed do projeto quando existir. Para ambiente remoto, peça ao usuário que crie um arquivo só dele (`install -m 600 /dev/null ~/.config/<app>-captura.env` com `APP_USER=` e `APP_PASS=`) e carregue com `set -a; . arquivo; set +a` na mesma linha do comando. Nunca peça a senha no chat e nunca grave a senha no roteiro: o roteiro usa `${APP_USER}` e `${APP_PASS}`.
+3. **Escreva o roteiro** (`roteiro.json`, ver `references/roteiro-captura.exemplo.json`): login, uma entrada por tela com os cliques que levam até ela, e um passo `baixar` para cada relatório que o sistema gera. Inclua as telas de relatório **e** os documentos gerados (PDF, planilha exportada como PDF): relatório é o que o gestor compra.
+4. **Máscara antes do print.** Em `mascarar`, liste o que não pode aparecer: dado pessoal e de cliente (nomes, documentos, nomes de arquivo enviados) e, quando o pedido for "blindar o como", termos do método (códigos técnicos, nomes de tabelas, nomes de regras). Monte a lista a partir do próprio código ou catálogo do produto, não de memória. `ocultar` remove o código técnico e mantém o nome de negócio ao lado.
+5. **Rode** `python scripts/capturar_sistema.py roteiro.json --saida telas`. Modais de boas-vindas e tours: desligue pelo campo `tema` (script que roda antes de cada página, ex.: gravar a flag de "tour concluído" no localStorage).
+6. **Olhe cada imagem.** A máscara cobre o que o roteiro manda cobrir, e só isso. Achou vazamento (nome de cliente, sigla do sistema, código técnico), acrescente à máscara e rode de novo. Não embuta imagem que você não abriu.
+7. **Embuta** as imagens (`<img src="data:image/jpeg;base64,...">`) dentro do `.device__screen`, com os hotspots apontando para o que importa na tela real. Documento gerado entra como página (moldura de documento, não de navegador). Comprima: JPEG q82, largura até 1600px (o script já faz).
+
+Se o sistema não puder ser aberto: mockup fiel em HTML/CSS reconstruído dos componentes (tema real, dados plausíveis), e a entrega avisa que as telas são reconstruções.
 
 ### 3. Escrever a narrativa
 Siga a estrutura de seções de `references/narrativa-e-copy.md` (Hero → Dor → Virada → Solução → Telas → Como funciona → Benefícios/ROI → Diferenciais → Segurança/Confiança → Implantação → CTA). Escreva toda a copy **antes** de montar o HTML.
@@ -77,6 +85,7 @@ A apresentação vende pela credibilidade, e texto com cara de IA faz o leitor d
 - Checklist final:
   - [ ] Nenhum lorem ipsum, "TODO" ou placeholder visível
   - [ ] Toda tela tem título, benefício e hotspots
+  - [ ] Telas e relatórios são capturas do sistema real (ou a entrega diz que são reconstruções) e cada imagem foi aberta e conferida contra vazamento
   - [ ] Copy fala de resultado para o cliente, não de tecnologia
   - [ ] Copy humanizada: `checar_copy.py` sem sinais e leitura humana feita
   - [ ] Nenhuma métrica/depoimento inventado apresentado como real

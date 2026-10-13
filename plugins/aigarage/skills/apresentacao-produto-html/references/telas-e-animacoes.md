@@ -2,36 +2,22 @@
 
 ## Parte 1 — Obtendo as telas
 
-### Opção A: capturas reais (preferida)
-Se o projeto tem app web que sobe localmente:
+### Opção A: capturas reais (padrão)
+Use `scripts/capturar_sistema.py` com um roteiro JSON (ver `roteiro-captura.exemplo.json` e o passo 2 do SKILL.md). Ele faz login com credencial vinda de variável de ambiente, navega e clica até cada tela, aplica a máscara, fotografa (tela inteira ou recorte), baixa os relatórios que o sistema gera e converte as páginas do PDF em imagem.
 
-1. Descubra o comando (`package.json` → `dev`/`start`; `manage.py runserver`; `docker compose up`).
-2. Suba em background e espere a porta responder.
-3. Se exigir login, use usuário de **seed/fixture** do próprio projeto (nunca credenciais reais do usuário). Se não houver, peça ao usuário ou vá para a Opção B.
-4. Capture com Playwright:
-
-```python
-# scripts/capturar_telas.py  — uso: python capturar_telas.py http://localhost:3000 /dashboard /pedidos /relatorios
-import sys, base64, asyncio
-from playwright.async_api import async_playwright
-
-async def main(base, rotas):
-    async with async_playwright() as p:
-        b = await p.chromium.launch()
-        pg = await b.new_page(viewport={"width": 1440, "height": 900}, device_scale_factor=1)
-        for r in rotas:
-            await pg.goto(base + r, wait_until="networkidle")
-            await pg.wait_for_timeout(800)
-            nome = r.strip("/").replace("/", "_") or "home"
-            await pg.screenshot(path=f"telas/{nome}.jpg", type="jpeg", quality=82)
-            print("ok", nome)
-        await b.close()
-
-asyncio.run(main(sys.argv[1], sys.argv[2:]))
-```
-
-5. Embuta como `data:image/jpeg;base64,...` dentro de `<img>` no `.device__screen`. Largura ≤ 1600px, qualidade ~80.
-6. **Revise cada captura**: remova dados sensíveis (nomes, CPFs, e-mails reais) — se houver, troque por mockup (Opção B) ou desfoque com CSS `filter: blur()` sobre a região.
+Dicas que evitam retrabalho:
+- Modal de boas-vindas ou tour cobrindo a tela: grave a flag de "visto" pelo campo `tema`.
+- Botão com texto repetido na página (ex.: "Relatórios" na aba e na sub-aba): use `button:has-text('Relatórios') >> nth=-1` ou um seletor mais específico.
+- Telas que carregam dados devagar: `esperar_seletor` no elemento que só existe depois do carregamento, não `esperar` fixo longo.
+- Revise cada captura. Dado sensível que escapou: acrescente à máscara (`regex`, `seletores`, `ocultar`) e rode de novo, em vez de editar a imagem à mão.
+- `select` genérico costuma pegar o seletor de idioma do cabeçalho. Ancore pelo conteúdo: `select:has(option:has-text('exec'))`.
+- Relatório que abre em janela (modal) cobre os botões da tela: comece o passo seguinte com `{"clicar": "button[aria-label='Fechar']", "opcional": true}`.
+- Painel lateral que não fecha com Escape: clique no botão de fechar dele, não na tecla.
+- Tela que falha não derruba as outras: o script grava `_falhou-<nome>.png` e segue. Olhe esse print para ajustar o seletor.
+- Login que não passa: o script grava `_login-falhou.png`. Credencial colada com o prefixo repetido (`APP_USER=APP_USER=...`) é corrigida sozinha.
+- Código técnico com formato fora do padrão escapa da máscara (ex.: com hífen). Leia as capturas procurando isso e acrescente o padrão.
+- Print de tela inteira fica pequeno dentro da moldura. Na montagem, recorte a área que importa (sem menu lateral e cabeçalho, ou só a janela do relatório) e use a proporção do recorte na moldura (`style="aspect-ratio:L/A"` no `.device__screen`); recalcule os hotspots para o recorte.
+- Captura longa: rode em segundo plano gravando um log, e confira o log no fim.
 
 ### Opção B: mockups fiéis em HTML/CSS
 Quando não dá para subir o app, reconstrua a tela lendo os componentes:

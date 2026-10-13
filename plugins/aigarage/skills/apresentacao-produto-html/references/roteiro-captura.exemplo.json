@@ -1,0 +1,37 @@
+{
+  "base_url": "http://localhost:8090",
+  "viewport": { "width": 1440, "height": 900 },
+  "escala": 1,
+  "tema": "try{localStorage.setItem('app.tour_completed','1');localStorage.setItem('app.theme','light');}catch(e){}",
+  "login": {
+    "url": "/login",
+    "campos": { "input[type=email]": "${APP_USER}", "input[type=password]": "${APP_PASS}" },
+    "enviar": "button[type=submit]",
+    "esperar": "text=Visão geral"
+  },
+  "mascarar": {
+    "substituto": "•••",
+    "regex": [
+      "[^\\n·|]*?\\.(?:txt\\.gz|txt|xlsx|xls|csv|gz)\\b",
+      "(?<![A-Za-z0-9_])(?:CPF|CNPJ)[:\\s]*[\\d./-]+"
+    ],
+    "seletores": [".avatar-email"],
+    "ocultar": [
+      { "seletor": ".font-mono", "regex": "^[A-Z][A-Z0-9_/]{1,19}$", "aparar_vizinho": "^\\s*·\\s*" }
+    ]
+  },
+  "telas": [
+    { "nome": "painel", "titulo": "Visão geral", "url": "/dashboard", "passos": [{ "esperar": 1500 }] },
+    { "nome": "lista", "titulo": "Lista de pedidos", "url": "/pedidos",
+      "passos": [{ "esperar_seletor": "table" }], "recorte": "main" },
+    { "nome": "detalhe", "titulo": "Detalhe do pedido",
+      "passos": [{ "clicar": "table tbody tr >> nth=0" }, { "esperar": 1200 }] },
+    { "passos": [
+        { "clicar": "a:has-text('Relatórios')" }, { "esperar": 1500 },
+        { "baixar": "tr:has-text('Relatório executivo') button:has-text('Baixar')", "como": "telas/docs/executivo.pdf" }
+    ] }
+  ],
+  "documentos": [
+    { "nome": "relatorio-executivo", "titulo": "Relatório executivo", "arquivo": "telas/docs/executivo.pdf", "paginas": [1, 2] }
+  ]
+}
