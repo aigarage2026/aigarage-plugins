@@ -35,10 +35,12 @@ Pode suprimir seções sem material, mas **nunca** remova Hero, Dor, Telas e CTA
 ## Palavras a evitar
 "revolucionário", "disruptivo", "solução robusta", "de ponta", "sinergia", "alavancar", "no mundo de hoje", "não apenas X, mas Y".
 
+A lista completa de sinais de texto de IA, com antes e depois, está em `humanizer-ptbr.md`. Toda copy passa por ela antes do HTML.
+
 ## Exemplos de títulos por seção
 - Hero: "Sua operação no piloto automático." / "Do pedido à entrega, sem planilha."
 - Dor: "Quanto custa fazer tudo na mão?"
-- Virada: "O mesmo processo. Outro resultado."
+- Virada: "Com o mesmo processo, outro resultado."
 - Telas: "Veja por dentro."
 - Tour: "Um dia com o [Produto]."
 - ROI: "O retorno aparece no primeiro mês."

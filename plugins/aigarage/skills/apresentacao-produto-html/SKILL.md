@@ -12,11 +12,13 @@ Saída padrão: `apresentacao-<nome-do-produto>.html` na raiz do projeto (ou em 
 Leia antes de construir:
 - `references/narrativa-e-copy.md` — estrutura das seções e regras de copy persuasiva
 - `references/telas-e-animacoes.md` — como capturar/recriar telas e o catálogo de animações
+- `references/humanizer-ptbr.md` — **obrigatório**: como tirar da copy os sinais de texto escrito por IA
 - `assets/template-base.html` — esqueleto com design tokens, componentes e motor de animação. **Parta dele**, não do zero.
 
 Scripts de apoio:
 - `scripts/capturar_telas.py <url-base> <rota1> <rota2>...` — screenshots via Playwright em `./telas/`
 - `scripts/embutir_imagem.py <arquivo>` — imprime o data URI base64 para colar no `<img src>`
+- `scripts/checar_copy.py <arquivo>.html` — acha travessão, emoji, fórmulas e vocabulário de IA no texto visível; sai com erro se encontrar
 
 ---
 
@@ -58,6 +60,9 @@ Obtenha as telas por ordem de preferência (detalhes em `references/telas-e-anim
 ### 3. Escrever a narrativa
 Siga a estrutura de seções de `references/narrativa-e-copy.md` (Hero → Dor → Virada → Solução → Telas → Como funciona → Benefícios/ROI → Diferenciais → Segurança/Confiança → Implantação → CTA). Escreva toda a copy **antes** de montar o HTML.
 
+### 3b. Humanizar a copy (obrigatório, antes do HTML)
+A apresentação vende pela credibilidade, e texto com cara de IA faz o leitor desconfiar do número ao lado. Passe **toda** a copy pela skill `humanizer` em modo embutido, se ela estiver instalada; sem ela, siga `references/humanizer-ptbr.md`, que traz as mesmas regras adaptadas para português e para página de venda. O mínimo: nenhum travessão, nenhum "não é X, é Y" ou "X, não Y" de efeito, nenhuma série de frases de impacto, nenhum trio forçado, nenhum emoji decorativo, nenhum fato que não veio do material. Copy nova ou alterada depois desta etapa volta para ela.
+
 ### 4. Construir o HTML
 - Copie `assets/template-base.html` e preencha. Arquivo **único**: CSS e JS inline; externo só Google Fonts e, se necessário, CDN (cdnjs/jsdelivr).
 - Substitua os tokens `--brand*` pelas cores reais do produto.
@@ -68,10 +73,12 @@ Siga a estrutura de seções de `references/narrativa-e-copy.md` (Hero → Dor �
 ### 5. Verificar (obrigatório)
 - Abra o arquivo com Playwright (se disponível) em 1440px e 390px, tire screenshots e **olhe** para elas; corrija sobreposição, texto cortado, contraste, rolagem horizontal.
 - Console sem erros.
+- Rode `python scripts/checar_copy.py <arquivo>.html` e corrija até sair sem sinais; depois leia o texto procurando o que o script não pega (trio forçado, frases de efeito em sequência, mesma construção repetida).
 - Checklist final:
   - [ ] Nenhum lorem ipsum, "TODO" ou placeholder visível
   - [ ] Toda tela tem título, benefício e hotspots
   - [ ] Copy fala de resultado para o cliente, não de tecnologia
+  - [ ] Copy humanizada: `checar_copy.py` sem sinais e leitura humana feita
   - [ ] Nenhuma métrica/depoimento inventado apresentado como real
   - [ ] Funciona offline (exceto fontes), responsivo, sem scroll horizontal
   - [ ] `prefers-reduced-motion` respeitado
