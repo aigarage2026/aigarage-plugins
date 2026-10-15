@@ -261,6 +261,10 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .theme-toggle{position:fixed;left:20px;bottom:20px;z-index:80;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;font-size:1.1rem}
 .kbd-hint{position:fixed;right:20px;bottom:20px;z-index:80;font-size:.72rem;color:var(--muted);background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:8px}
 @media(max-width:900px){.kbd-hint{display:none}}
+.fs-btn{position:fixed;right:20px;bottom:58px;z-index:81;display:inline-flex;align-items:center;gap:8px;font:600 .8rem var(--font);color:var(--text);background:var(--surface);border:1px solid var(--line);padding:8px 14px;border-radius:999px;cursor:pointer;box-shadow:0 8px 24px -10px rgba(0,0,0,.4);transition:border-color .2s}
+.fs-btn:hover,.fs-btn:focus-visible{border-color:var(--brand-2);outline:none}
+.fs-aviso{position:fixed;right:20px;bottom:104px;z-index:81;font-size:.78rem;color:var(--text);background:var(--surface-2);border:1px solid var(--line);padding:8px 12px;border-radius:8px;max-width:260px}
+@media(max-width:900px){.fs-btn{bottom:20px}.fs-aviso{bottom:66px}}
 </style>
 </head>
 <body>
@@ -540,6 +544,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 <button class="theme-toggle" id="theme" aria-label="Alternar tema">◐</button>
 <div class="kbd-hint">← → navegar · F tela cheia</div>
+<button class="fs-btn" id="fs" type="button" aria-label="Alternar tela cheia">⛶ <span>Tela cheia</span></button>
+<div class="fs-aviso" id="fs-aviso" role="status" hidden></div>
 
 <script>
 (()=>{
@@ -626,12 +632,26 @@ const secIO=new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) r
 sections.forEach(s=>secIO.observe(s));
 
 /* Modo apresentação: ← → / PageUp PageDown / F */
+const fsAtivo=()=>document.fullscreenElement||document.webkitFullscreenElement;
+const fsBtn=document.getElementById('fs'), fsAviso=document.getElementById('fs-aviso');
+function fsMsg(t){ if(!fsAviso) return; fsAviso.textContent=t; fsAviso.hidden=false; clearTimeout(fsMsg.t); fsMsg.t=setTimeout(()=>fsAviso.hidden=true,4500); }
+function fsRotulo(){ if(fsBtn) fsBtn.querySelector('span').textContent=fsAtivo()?'Sair da tela cheia':'Tela cheia'; }
+function toggleFS(){
+  const d=document, el=d.documentElement;
+  if(fsAtivo()){ (d.exitFullscreen||d.webkitExitFullscreen).call(d); return; }
+  const pedir=el.requestFullscreen||el.webkitRequestFullscreen;
+  if(!pedir){ fsMsg('Este navegador não permite tela cheia por aqui. Use a tecla F11.'); return; }
+  try{ const p=pedir.call(el); if(p&&p.catch) p.catch(()=>fsMsg('O navegador bloqueou a tela cheia. Use a tecla F11.')); }
+  catch(_){ fsMsg('O navegador bloqueou a tela cheia. Use a tecla F11.'); }
+}
+fsBtn&&fsBtn.addEventListener('click',toggleFS);
+['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,fsRotulo));
 const idx=()=>{let i=0; sections.forEach((s,k)=>{if(s.getBoundingClientRect().top<=innerHeight*.4) i=k;}); return i;};
 addEventListener('keydown',e=>{
   if(e.target.closest('input,textarea')) return;
   if(['ArrowRight','PageDown'].includes(e.key)){e.preventDefault(); sections[Math.min(idx()+1,sections.length-1)].scrollIntoView({behavior:reduce?'auto':'smooth'});}
   if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault(); sections[Math.max(idx()-1,0)].scrollIntoView({behavior:reduce?'auto':'smooth'});}
-  if(e.key.toLowerCase()==='f'){ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.(); }
+  if(e.key.toLowerCase()==='f'){ e.preventDefault(); toggleFS(); }
 });
 
 /* Tema */
