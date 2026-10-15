@@ -18,6 +18,15 @@ Dicas que evitam retrabalho:
 - Código técnico com formato fora do padrão escapa da máscara (ex.: com hífen). Leia as capturas procurando isso e acrescente o padrão.
 - Print de tela inteira fica pequeno dentro da moldura. Na montagem, recorte a área que importa (sem menu lateral e cabeçalho, ou só a janela do relatório) e use a proporção do recorte na moldura (`style="aspect-ratio:L/A"` no `.device__screen`); recalcule os hotspots para o recorte.
 - Captura longa: rode em segundo plano gravando um log, e confira o log no fim.
+- Letra pequena nos relatórios: recorte justo nas colunas que importam (só a tabela, não a janela inteira). Menos área de origem por pixel = texto maior na moldura.
+- Nada cortado: dê a cada `.device__screen` a proporção exata da imagem (`aspect-ratio:L/A`) e `object-fit:contain`; nunca proporção fixa com `cover`.
+
+### Modo apresentação: uma seção por tela
+Quem apresenta usa tela cheia, então cada seção precisa caber em `100vh`:
+- `section{min-height:100vh;display:flex;align-items:center}` e títulos/leads com `clamp()` ligado à altura (`vh`).
+- Seção longa (cartões + passos, galeria + lista, páginas + descrições, cartões + FAQ) vira duas seções.
+- Limite a moldura pela altura: `.device{max-width:calc((100vh - <altura do resto>px) * var(--ar))}` com `--ar` = proporção da imagem; imagem vertical ganha limite próprio.
+- Meça antes de entregar, em 1920×1080 e 1440×900: nenhuma `section` mais alta que `innerHeight`, clicando em todas as abas da galeria.
 
 ### Opção B: mockups fiéis em HTML/CSS
 Quando não dá para subir o app, reconstrua a tela lendo os componentes:
